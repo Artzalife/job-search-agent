@@ -1,0 +1,2 @@
+# v1 uses only the Python standard library (urllib, csv, json).
+# No third-party packages are required.
