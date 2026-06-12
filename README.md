@@ -60,3 +60,27 @@ The script prints per-company stats, then writes matching jobs to `jobs.csv` wit
 | `date_found` | Date the job was collected (ISO format) |
 
 Re-running the script merges new jobs into the existing CSV without duplicating `apply_url` values.
+
+## Automatic weekday runs (macOS)
+
+The project includes a `launchd` job that runs the scraper **Monday through Friday at 9:00 AM** local time.
+
+Install or update the schedule:
+
+```bash
+./scripts/install_schedule.sh
+```
+
+Run the scraper immediately (without waiting for the schedule):
+
+```bash
+launchctl kickstart -k gui/$(id -u)/com.jobsearchagent.scraper
+```
+
+Logs are written to `logs/job_scraper.log`. To change the run time, edit the `Hour` and `Minute` values in `launchd/com.jobsearchagent.scraper.plist`, then rerun `install_schedule.sh`.
+
+To remove the schedule:
+
+```bash
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.jobsearchagent.scraper.plist
+```
