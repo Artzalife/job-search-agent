@@ -18,7 +18,8 @@ Ashby:
 
 We fetch every open job from each configured board, filter titles against the
 include/exclude rules in config.py, classify each location, keep only Remote
-roles, deduplicate by apply_url, and write results to jobs.csv.
+roles, archive first-time job descriptions as Markdown, deduplicate by
+apply_url, and write results to jobs.csv.
 
 Run:
     python3 job_scraper.py
@@ -27,6 +28,8 @@ Run:
 from __future__ import annotations
 
 import csv
+import hashlib
+import html
 import json
 import re
 import sys
@@ -38,6 +41,7 @@ from pathlib import Path
 from config import (
     ASHBY_API_BASE,
     ASHBY_BOARDS,
+    DESCRIPTIONS_DIR,
     GREENHOUSE_API_BASE,
     GREENHOUSE_BOARDS,
     LEVER_API_BASE,
@@ -55,6 +59,7 @@ CSV_COLUMNS = [
     "location_type",
     "apply_url",
     "date_found",
+    "description_file",
 ]
 
 REMOTE_KEYWORDS = ("remote", "work from home")
@@ -259,8 +264,8 @@ def fetch_json(url: str) -> object:
 
 
 def fetch_greenhouse_jobs(board_token: str) -> list[dict]:
-    """Fetch all published jobs for a Greenhouse board."""
-    url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs"
+    """Fetch all published jobs for a Greenhouse board, including descriptions."""
+    url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs?content=true"
     payload = fetch_json(url)
     return payload.get("jobs", [])
 
@@ -300,6 +305,124 @@ def extract_ashby_location(job: dict) -> str:
     return job.get("location", "").strip()
 
 
+def html_to_text(value: str) -> str:
+    """Convert HTML job descriptions to readable plain text."""
+    text = html.unescape(value)
+    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+    text = re.sub(r"</p>", "\n\n", text, flags=re.I)
+    text = re.sub(r"</li>", "\n", text, flags=re.I)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def extract_greenhouse_description(job: dict) -> str:
+    """Extract plain-text description from a Greenhouse job object."""
+    content = job.get("content", "")
+    return html_to_text(content) if content else ""
+
+
+def extract_lever_description(job: dict) -> str:
+    """Extract plain-text description from a Lever posting."""
+    for field in ("descriptionPlain", "description"):
+        value = job.get(field, "")
+        if value:
+            if field == "description":
+                return html_to_text(value)
+            return value.strip()
+    return ""
+
+
+def extract_ashby_description(job: dict) -> str:
+    """Extract plain-text description from an Ashby posting."""
+    plain = job.get("descriptionPlain", "")
+    if plain:
+        return plain.strip()
+    html_value = job.get("descriptionHtml", "")
+    return html_to_text(html_value) if html_value else ""
+
+
+def slugify(value: str) -> str:
+    """Lowercase a string and replace spaces with hyphens for filenames."""
+    normalized = value.casefold()
+    normalized = re.sub(r"[^\w\s-]", "", normalized)
+    normalized = re.sub(r"[\s_]+", "-", normalized.strip())
+    normalized = re.sub(r"-+", "-", normalized)
+    return normalized
+
+
+def description_filename(company: str, title: str, captured_on: date) -> str:
+    """Build the Markdown filename for an archived job description."""
+    date_slug = captured_on.strftime("%m-%d-%y")
+    return f"{slugify(company)}_{slugify(title)}_{date_slug}.md"
+
+
+def description_markdown(
+    title: str,
+    company: str,
+    location: str,
+    apply_url: str,
+    captured_on: str,
+    description: str,
+) -> str:
+    """Render the archived job description as Markdown."""
+    body = description.strip() if description.strip() else "_No description available._"
+    return (
+        f"# {title}\n\n"
+        f"Company: {company}\n"
+        f"Location: {location}\n"
+        f"URL: {apply_url}\n"
+        f"Date Captured: {captured_on}\n\n"
+        f"## Full Job Description\n\n"
+        f"{body}\n"
+    )
+
+
+def archive_job_description(
+    job: dict,
+    descriptions_root: Path,
+    existing_paths_by_url: dict[str, str],
+) -> tuple[str, bool]:
+    """
+    Save a job description Markdown file when the job is first discovered.
+
+    Returns the relative path and whether a new file was written. Existing
+    files are never overwritten.
+    """
+    apply_url = job["apply_url"]
+    if apply_url in existing_paths_by_url:
+        return existing_paths_by_url[apply_url], False
+
+    captured_on = date.fromisoformat(job["date_found"])
+    year_dir = descriptions_root / str(captured_on.year)
+    year_dir.mkdir(parents=True, exist_ok=True)
+
+    filename = description_filename(job["company"], job["title"], captured_on)
+    relative_path = Path(DESCRIPTIONS_DIR) / str(captured_on.year) / filename
+    absolute_path = descriptions_root / str(captured_on.year) / filename
+
+    if absolute_path.exists():
+        url_hash = hashlib.sha256(apply_url.encode("utf-8")).hexdigest()[:8]
+        stem = absolute_path.stem
+        hashed_name = f"{stem}-{url_hash}{absolute_path.suffix}"
+        absolute_path = absolute_path.with_name(hashed_name)
+        relative_path = relative_path.with_name(hashed_name)
+
+    if absolute_path.exists():
+        return str(relative_path).replace("\\", "/"), False
+
+    markdown = description_markdown(
+        title=job["title"],
+        company=job["company"],
+        location=job["location"],
+        apply_url=apply_url,
+        captured_on=job["date_found"],
+        description=job.get("description", ""),
+    )
+    absolute_path.write_text(markdown, encoding="utf-8")
+    return str(relative_path).replace("\\", "/"), True
+
+
 def classify_lever_location(job: dict, location: str) -> str:
     """Classify a Lever posting as Remote, Hybrid, or another location type."""
     workplace_type = (job.get("workplaceType") or "").strip().casefold()
@@ -327,6 +450,7 @@ def make_job_row(
     location_type: str,
     apply_url: str,
     today: str,
+    description: str = "",
 ) -> dict:
     """Build a normalized CSV row for a qualifying job posting."""
     return {
@@ -336,6 +460,8 @@ def make_job_row(
         "location_type": location_type,
         "apply_url": apply_url,
         "date_found": today,
+        "description": description,
+        "description_file": "",
     }
 
 
@@ -387,7 +513,13 @@ def collect_greenhouse_jobs(today: str, collected: dict[str, dict]) -> dict[str,
                 continue
 
             collected[apply_url] = make_job_row(
-                company_name, title, location, location_type, apply_url, today
+                company_name,
+                title,
+                location,
+                location_type,
+                apply_url,
+                today,
+                extract_greenhouse_description(job),
             )
             board_written += 1
 
@@ -426,7 +558,13 @@ def collect_lever_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
                 continue
 
             collected[apply_url] = make_job_row(
-                company_name, title, location, location_type, apply_url, today
+                company_name,
+                title,
+                location,
+                location_type,
+                apply_url,
+                today,
+                extract_lever_description(job),
             )
             board_written += 1
 
@@ -465,7 +603,13 @@ def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
                 continue
 
             collected[apply_url] = make_job_row(
-                company_name, title, location, location_type, apply_url, today
+                company_name,
+                title,
+                location,
+                location_type,
+                apply_url,
+                today,
+                extract_ashby_description(job),
             )
             board_written += 1
 
@@ -519,15 +663,23 @@ def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
     return location_is_included(location_type), location_type
 
 
-def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int]:
+def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int, int]:
     """
     Merge new jobs into the CSV, deduplicating by apply_url.
 
-    Existing rows that no longer pass filters are dropped. Returns
-    (newly_added_count, total_rows_written).
+    Archives Markdown descriptions for newly discovered jobs. Existing rows
+    that no longer pass filters are dropped. Returns
+    (newly_added_count, total_rows_written, descriptions_archived).
     """
     existing = load_existing_jobs(csv_path)
     pruned: dict[str, dict] = {}
+    descriptions_root = Path(DESCRIPTIONS_DIR)
+    existing_paths_by_url = {
+        apply_url: row.get("description_file", "").strip()
+        for apply_url, row in existing.items()
+        if row.get("description_file", "").strip()
+    }
+    archived = 0
 
     for apply_url, row in existing.items():
         qualifies, location_type = job_qualifies(
@@ -537,13 +689,43 @@ def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int]:
         if not qualifies:
             continue
         row["location_type"] = location_type
+        row["description_file"] = row.get("description_file", "").strip()
         pruned[apply_url] = row
 
     added = 0
     for job in new_jobs:
-        if job["apply_url"] not in pruned:
+        is_new = job["apply_url"] not in pruned
+        if is_new:
             added += 1
-        pruned[job["apply_url"]] = job
+
+        merged = pruned.get(job["apply_url"], {})
+        job_row = {
+            "company": job["company"],
+            "title": job["title"],
+            "location": job["location"],
+            "location_type": job["location_type"],
+            "apply_url": job["apply_url"],
+            "date_found": merged.get("date_found", job["date_found"]),
+            "description_file": merged.get("description_file", "").strip(),
+            "description": job.get("description", ""),
+        }
+
+        needs_archive = not job_row["description_file"]
+        if needs_archive:
+            description_file, created = archive_job_description(
+                job_row,
+                descriptions_root,
+                existing_paths_by_url,
+            )
+            job_row["description_file"] = description_file
+            existing_paths_by_url[job["apply_url"]] = description_file
+            if created:
+                archived += 1
+
+        pruned[job["apply_url"]] = {
+            key: job_row[key]
+            for key in CSV_COLUMNS
+        }
 
     rows = sorted(pruned.values(), key=lambda row: (row["company"], row["title"]))
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
@@ -551,7 +733,7 @@ def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int]:
         writer.writeheader()
         writer.writerows(rows)
 
-    return added, len(rows)
+    return added, len(rows), archived
 
 
 def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
@@ -568,11 +750,12 @@ def main() -> None:
     print("Collecting Product Design jobs from Greenhouse, Lever, and Ashby boards...\n")
     jobs, stats = collect_jobs()
     csv_path = Path(OUTPUT_CSV)
-    added, total_written = save_jobs(csv_path, jobs)
+    added, total_written, archived = save_jobs(csv_path, jobs)
 
     print_summary(stats, len(jobs))
     print(f"\nSaved to {csv_path.resolve()}")
     print(f"Added {added} new row(s); total rows in CSV: {total_written}")
+    print(f"Archived {archived} new job description(s) to {Path(DESCRIPTIONS_DIR).resolve()}")
 
 
 if __name__ == "__main__":

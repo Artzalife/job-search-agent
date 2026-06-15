@@ -1,15 +1,17 @@
-company,title,location,location_type,apply_url,date_found
-Affirm,Senior Product Designer,Remote Canada,Remote,https://job-boards.greenhouse.io/affirm/jobs/7711527003,2026-06-15
-GitLab,"Senior Product Designer, AI","Remote, Canada; Remote, US",Remote,https://job-boards.greenhouse.io/gitlab/jobs/8464608002,2026-06-15
-Hatch,Senior Product Designer,Remote,Remote,https://jobs.ashbyhq.com/hatch/f717d43f-8b72-4cb5-90af-d2222d6886b2/application,2026-06-15
-LaunchDarkly,"Senior Product Designer, AI Configs",Remote - US,Remote,https://job-boards.greenhouse.io/launchdarkly/jobs/7629005003,2026-06-15
-LaunchDarkly,"Senior Product Designer, Growth",Remote - US,Remote,https://job-boards.greenhouse.io/launchdarkly/jobs/7738081003,2026-06-15
-Mercury,Senior Product Designer - Accounting Systems,"San Francisco, CA, New York, NY, Portland, OR, or Remote within Canada or United States",Remote,https://job-boards.greenhouse.io/mercury/jobs/6001908004,2026-06-15
-Mercury,Senior Product Designer – Mobile,"San Francisco, CA, New York, NY, Portland, OR, or Remote within Canada or United States",Remote,https://job-boards.greenhouse.io/mercury/jobs/5843845004,2026-06-15
-Mixpanel,Senior Product Designer,"San Francisco, US (Remote)",Remote,https://job-boards.greenhouse.io/mixpanel/jobs/7767652,2026-06-15
-Omada Health,Senior Product Designer,"Remote, USA",Remote,https://job-boards.greenhouse.io/omadahealth/jobs/7800336,2026-06-15
-Pinterest,"Product Designer II, Pinner Actionability","San Francisco, CA, US; Remote, US",Remote,https://www.pinterestcareers.com/jobs/?gh_jid=7698212,2026-06-15
-Pinterest,"Sr. Product Designer, Measurement & Conversion","San Francisco, CA, US; Remote, US",Remote,https://www.pinterestcareers.com/jobs/?gh_jid=7743636,2026-06-15
-Sword Health,Expert Product Designer - Web,Porto,Remote,https://jobs.lever.co/swordhealth/56f75afa-a34d-4c88-b9a6-f954bf15a0a0/apply,2026-06-15
-Veeva,Senior Product Designer,California - Pleasanton,Remote,https://jobs.lever.co/veeva/86abf448-acee-4fc5-8c5f-215c917fa986/apply,2026-06-15
-Vercel,Senior Product Designer,Remote - United States,Remote,https://job-boards.greenhouse.io/vercel/jobs/5735407004,2026-06-15
+company,title,location,location_type,apply_url,date_found,description_file
+Affirm,Senior Product Designer,Remote Canada,Remote,https://job-boards.greenhouse.io/affirm/jobs/7711527003,2026-06-15,job_descriptions/2026/affirm_senior-product-designer_06-15-26.md
+GitLab,"Senior Product Designer, AI","Remote, Canada; Remote, US",Remote,https://job-boards.greenhouse.io/gitlab/jobs/8464608002,2026-06-15,job_descriptions/2026/gitlab_senior-product-designer-ai_06-15-26.md
+Hatch,Senior Product Designer,Remote,Remote,https://jobs.ashbyhq.com/hatch/f717d43f-8b72-4cb5-90af-d2222d6886b2/application,2026-06-15,job_descriptions/2026/hatch_senior-product-designer_06-15-26.md
+LaunchDarkly,"Senior Product Designer, AI Configs",Remote - US,Remote,https://job-boards.greenhouse.io/launchdarkly/jobs/7629005003,2026-06-15,job_descriptions/2026/launchdarkly_senior-product-designer-ai-configs_06-15-26.md
+LaunchDarkly,"Senior Product Designer, Growth",Remote - US,Remote,https://job-boards.greenhouse.io/launchdarkly/jobs/7738081003,2026-06-15,job_descriptions/2026/launchdarkly_senior-product-designer-growth_06-15-26.md
+Mercury,Senior Product Designer - Accounting Systems,"San Francisco, CA, New York, NY, Portland, OR, or Remote within Canada or United States",Remote,https://job-boards.greenhouse.io/mercury/jobs/6001908004,2026-06-15,job_descriptions/2026/mercury_senior-product-designer-accounting-systems_06-15-26.md
+Mercury,Senior Product Designer – Mobile,"San Francisco, CA, New York, NY, Portland, OR, or Remote within Canada or United States",Remote,https://job-boards.greenhouse.io/mercury/jobs/5843845004,2026-06-15,job_descriptions/2026/mercury_senior-product-designer-mobile_06-15-26.md
+Mixpanel,Senior Product Designer,"San Francisco, US (Remote)",Remote,https://job-boards.greenhouse.io/mixpanel/jobs/7767652,2026-06-15,job_descriptions/2026/mixpanel_senior-product-designer_06-15-26.md
+Natera,"UX Designer, Provider Experience",US Remote,Remote,https://job-boards.greenhouse.io/natera/jobs/5991741004,2026-06-15,job_descriptions/2026/natera_ux-designer-provider-experience_06-15-26.md
+Omada Health,Senior Product Designer,"Remote, USA",Remote,https://job-boards.greenhouse.io/omadahealth/jobs/7800336,2026-06-15,job_descriptions/2026/omada-health_senior-product-designer_06-15-26.md
+Pinterest,"Product Designer II, Design Innovation","San Francisco, CA, US; Remote, US",Remote,https://www.pinterestcareers.com/jobs/?gh_jid=7684638,2026-06-15,job_descriptions/2026/pinterest_product-designer-ii-design-innovation_06-15-26.md
+Pinterest,"Product Designer II, Pinner Actionability","San Francisco, CA, US; Remote, US",Remote,https://www.pinterestcareers.com/jobs/?gh_jid=7698212,2026-06-15,job_descriptions/2026/pinterest_product-designer-ii-pinner-actionability_06-15-26.md
+Pinterest,"Sr. Product Designer, Measurement & Conversion","San Francisco, CA, US; Remote, US",Remote,https://www.pinterestcareers.com/jobs/?gh_jid=7743636,2026-06-15,job_descriptions/2026/pinterest_sr-product-designer-measurement-conversion_06-15-26.md
+Sword Health,Expert Product Designer - Web,Porto,Remote,https://jobs.lever.co/swordhealth/56f75afa-a34d-4c88-b9a6-f954bf15a0a0/apply,2026-06-15,job_descriptions/2026/sword-health_expert-product-designer-web_06-15-26.md
+Veeva,Senior Product Designer,California - Pleasanton,Remote,https://jobs.lever.co/veeva/86abf448-acee-4fc5-8c5f-215c917fa986/apply,2026-06-15,job_descriptions/2026/veeva_senior-product-designer_06-15-26.md
+Vercel,Senior Product Designer,Remote - United States,Remote,https://job-boards.greenhouse.io/vercel/jobs/5735407004,2026-06-15,job_descriptions/2026/vercel_senior-product-designer_06-15-26.md

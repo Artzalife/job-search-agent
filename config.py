@@ -230,6 +230,9 @@ LOCATION_TYPES_INCLUDED = ("Remote",)
 # Output file for collected jobs.
 OUTPUT_CSV = "jobs.csv"
 
+# Root folder for archived job description Markdown files.
+DESCRIPTIONS_DIR = "job_descriptions"
+
 # Greenhouse Job Board API base URL (public, read-only, no authentication).
 GREENHOUSE_API_BASE = "https://boards-api.greenhouse.io/v1/boards"
 

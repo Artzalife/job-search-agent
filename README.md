@@ -23,9 +23,10 @@ Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lea
 | File | Purpose |
 |------|---------|
 | `config.py` | Board slugs for Greenhouse, Lever, and Ashby; title/location filters |
-| `job_scraper.py` | Fetches jobs from the Greenhouse API and writes `jobs.csv` |
+| `job_scraper.py` | Fetches jobs from Greenhouse, Lever, and Ashby and writes `jobs.csv` |
 | `requirements.txt` | Dependencies (v1 uses stdlib only) |
 | `jobs.csv` | Output file (created on first run) |
+| `job_descriptions/` | Archived Markdown job descriptions (organized by year) |
 
 ## Setup
 
@@ -61,6 +62,33 @@ The script prints per-company stats, then writes matching jobs to `jobs.csv` wit
 | `location_type` | Location classification (`Remote`, `Office`, etc.) |
 | `apply_url` | Direct link to the job posting |
 | `date_found` | Date the job was collected (ISO format) |
+| `description_file` | Relative path to the archived Markdown description |
+
+### Job description archive
+
+When a job is first discovered, the scraper saves its full description as a Markdown file under `job_descriptions/{year}/`.
+
+**Filename format:** `{company}_{job-title}_{date}.md`
+
+- Lowercase
+- Spaces replaced with hyphens
+- Date format: `MM-DD-YY`
+
+**Example:**
+
+```
+job_descriptions/2026/vercel_senior-product-designer_06-15-26.md
+```
+
+Each file contains the job title, company, location, URL, capture date, and full description text. The relative path is stored in the `description_file` column of `jobs.csv`.
+
+Archive rules:
+
+- Description files are created only on first discovery
+- Existing description files are never overwritten on later runs
+- Duplicate jobs (same `apply_url`) share a single description file
+
+The archive uses only the Python standard library and relative paths, so it works in local runs, `launchd` schedules, and GitHub Actions.
 
 ### Filters (`config.py`)
 
