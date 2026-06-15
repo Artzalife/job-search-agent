@@ -75,6 +75,29 @@ GREENHOUSE_BOARDS = {
     "parsleyhealth": "Parsley Health",
     "honor": "Honor",
     "hazel": "Hazel Health",
+    "carbon": "Carbon Health",
+    "patientpoint": "PatientPoint",
+    "vitablehealth": "Vitable Health",
+    "village": "VillageMD",
+    "thirtymadison": "Thirty Madison",
+    "found": "Found",
+    "candid": "Candid Health",
+    "curative": "Curative",
+    "babylist": "Babylist",
+    # Diagnostics, biotech & medtech (additional)
+    "beamtherapeutics": "Beam Therapeutics",
+    "elementbiosciences": "Element Biosciences",
+    "generatebiomedicines": "Generate Biomedicines",
+    "relaytherapeutics": "Relay Therapeutics",
+    "tesseratherapeutics": "Tessera Therapeutics",
+    "florencehealthcare": "Florence Healthcare",
+    "biofourmis": "Biofourmis",
+    # Behavioral health & care delivery (additional)
+    "betterhelp": "BetterHelp",
+    "talkspace": "Talkspace",
+    "cerebral": "Cerebral",
+    "meruhealth": "Meru Health",
+    "ww": "WeightWatchers",
     # Additional verified Greenhouse boards (tech)
     "databricks": "Databricks",
     "mongodb": "MongoDB",
@@ -137,9 +160,10 @@ TITLE_INCLUDES = [
 ]
 
 # Job titles containing any of these phrases are excluded (case-insensitive).
-# Seniority levels (Staff, Principal, Lead) are intentionally kept so all IC
-# product design roles are captured.
 TITLE_EXCLUDES = [
+    "Staff",
+    "Principal",
+    "Lead",
     "Director",
     "Manager",
     "Intern",

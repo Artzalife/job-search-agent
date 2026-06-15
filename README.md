@@ -12,7 +12,7 @@ Each Greenhouse customer has a public job board identified by a **board token** 
 GET https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
 ```
 
-Jobs are filtered to product design / UX titles (including Staff and Principal IC roles), excluding intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
+Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lead, intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
 
 **Coverage note:** Greenhouse has no public API to list every company board. The scraper only searches the board tokens configured in `config.py`. Add more tokens there to expand coverage.
 
