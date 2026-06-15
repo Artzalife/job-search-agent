@@ -75,33 +75,82 @@ GREENHOUSE_BOARDS = {
     "parsleyhealth": "Parsley Health",
     "honor": "Honor",
     "hazel": "Hazel Health",
+    # Additional verified Greenhouse boards (tech)
+    "databricks": "Databricks",
+    "mongodb": "MongoDB",
+    "datadog": "Datadog",
+    "okta": "Okta",
+    "zscaler": "Zscaler",
+    "roblox": "Roblox",
+    "block": "Block",
+    "airbnb": "Airbnb",
+    "cloudflare": "Cloudflare",
+    "elastic": "Elastic",
+    "pinterest": "Pinterest",
+    "scaleai": "Scale AI",
+    "instacart": "Instacart",
+    "riotgames": "Riot Games",
+    "robinhood": "Robinhood",
+    "affirm": "Affirm",
+    "twilio": "Twilio",
+    "reddit": "Reddit",
+    "lyft": "Lyft",
+    "gitlab": "GitLab",
+    "epicgames": "Epic Games",
+    "sofi": "SoFi",
+    "fivetran": "Fivetran",
+    "oura": "Oura",
+    "gusto": "Gusto",
+    "discord": "Discord",
+    "chime": "Chime",
+    "hightouch": "Hightouch",
+    "duolingo": "Duolingo",
+    "mercury": "Mercury",
+    "amplitude": "Amplitude",
+    "pagerduty": "PagerDuty",
+    "singlestore": "SingleStore",
+    "fastly": "Fastly",
+    "heartflowinc": "HeartFlow",
+    "launchdarkly": "LaunchDarkly",
+    "cockroachlabs": "Cockroach Labs",
+    "marqeta": "Marqeta",
+    "mixpanel": "Mixpanel",
+    "betterment": "Betterment",
+    "khanacademy": "Khan Academy",
+    "labelbox": "Labelbox",
+    "planetscale": "PlanetScale",
+    "coursera": "Coursera",
+    "stabilityai": "Stability AI",
+    "masterclass": "MasterClass",
+    "netlify": "Netlify",
+    "calm": "Calm",
 }
 
 # Job titles must contain at least one of these phrases (case-insensitive).
 TITLE_INCLUDES = [
     "Product Designer",
-    "Senior Product Designer",
+    "Product Design",
     "UX Designer",
-    "Senior UX Designer",
+    "UI Designer",
     "UX/UI Designer",
-    "Senior UX/UI Designer",
+    "UI/UX Designer",
 ]
 
 # Job titles containing any of these phrases are excluded (case-insensitive).
+# Seniority levels (Staff, Principal, Lead) are intentionally kept so all IC
+# product design roles are captured.
 TITLE_EXCLUDES = [
-    "Staff",
-    "Principal",
-    "Lead",
     "Director",
     "Manager",
     "Intern",
     "Internship",
     "Junior",
     "Student",
+    "Recruiter",
 ]
 
-# Only jobs with these location_type values are written to the CSV.
-LOCATION_TYPES_INCLUDED = ("Remote", "Ambiguous")
+# Only jobs classified as fully remote are written to the CSV.
+LOCATION_TYPES_INCLUDED = ("Remote",)
 
 # Output file for collected jobs.
 OUTPUT_CSV = "jobs.csv"

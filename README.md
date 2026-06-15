@@ -12,7 +12,9 @@ Each Greenhouse customer has a public job board identified by a **board token** 
 GET https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
 ```
 
-Jobs are filtered to titles containing Product Design / UX keywords and excluding intern, junior, or student roles. Duplicates are avoided by tracking each job's `apply_url`.
+Jobs are filtered to product design / UX titles (including Staff and Principal IC roles), excluding intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
+
+**Coverage note:** Greenhouse has no public API to list every company board. The scraper only searches the board tokens configured in `config.py`. Add more tokens there to expand coverage.
 
 ## Project structure
 
@@ -56,8 +58,18 @@ The script prints per-company stats, then writes matching jobs to `jobs.csv` wit
 | `company` | Company display name from config |
 | `title` | Job title |
 | `location` | Location string from Greenhouse |
+| `location_type` | Location classification (`Remote`, `Office`, etc.) |
 | `apply_url` | Direct link to the job posting |
 | `date_found` | Date the job was collected (ISO format) |
+
+### Filters (`config.py`)
+
+| Setting | What it does |
+|---------|--------------|
+| `GREENHOUSE_BOARDS` | Companies to search (board token → display name) |
+| `TITLE_INCLUDES` | Title must contain one of these phrases |
+| `TITLE_EXCLUDES` | Title must not contain these phrases (manager, intern, etc.) |
+| `LOCATION_TYPES_INCLUDED` | Only jobs with these location types are saved (default: `Remote` only) |
 
 Re-running the script merges new jobs into the existing CSV without duplicating `apply_url` values.
 

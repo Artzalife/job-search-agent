@@ -23,8 +23,8 @@ The response is a JSON object with a "jobs" array. Each job includes fields such
   - id             — Greenhouse job post ID
 
 We fetch every open job from each configured board, filter titles against the
-include/exclude rules in config.py, classify each location, keep only Remote and
-Ambiguous roles, deduplicate by apply_url, and write results to jobs.csv.
+include/exclude rules in config.py, classify each location, keep only Remote
+roles, deduplicate by apply_url, and write results to jobs.csv.
 
 Run:
     python3 job_scraper.py
