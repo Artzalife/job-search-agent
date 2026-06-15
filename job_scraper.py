@@ -133,11 +133,12 @@ def title_matches(title: str) -> bool:
 
 def classify_location(location: str) -> str:
     """
-    Classify a Greenhouse location string into Remote, Office, International, or Ambiguous.
+    Classify a location string into Remote, Hybrid, Office, International, or Ambiguous.
 
     Rules (evaluated in order):
+      Hybrid        — contains "hybrid" (checked before remote keywords)
       Remote        — contains "remote" or "work from home"
-      Ambiguous     — contains "United States", US-based multi-location options, hybrid,
+      Ambiguous     — contains "United States", US-based multi-location options,
                       empty/unclear text, or otherwise undetermined remote status
       International — clearly outside the United States
       Office        — US city/state location only
@@ -148,13 +149,13 @@ def classify_location(location: str) -> str:
     if not text:
         return "Ambiguous"
 
+    if "hybrid" in normalized:
+        return "Hybrid"
+
     if any(keyword in normalized for keyword in REMOTE_KEYWORDS):
         return "Remote"
 
     if "united states" in normalized:
-        return "Ambiguous"
-
-    if "hybrid" in normalized:
         return "Ambiguous"
 
     has_multi_arrangement = any(marker in text for marker in MULTI_ARRANGEMENT_MARKERS)
@@ -300,16 +301,21 @@ def extract_ashby_location(job: dict) -> str:
 
 
 def classify_lever_location(job: dict, location: str) -> str:
-    """Classify a Lever posting as Remote or another location type."""
+    """Classify a Lever posting as Remote, Hybrid, or another location type."""
     workplace_type = (job.get("workplaceType") or "").strip().casefold()
+    if workplace_type == "hybrid":
+        return "Hybrid"
     if workplace_type == "remote":
         return "Remote"
     return classify_location(location)
 
 
 def classify_ashby_location(job: dict, location: str) -> str:
-    """Classify an Ashby posting as Remote or another location type."""
-    if job.get("isRemote") or job.get("workplaceType") == "Remote":
+    """Classify an Ashby posting as Remote, Hybrid, or another location type."""
+    workplace_type = (job.get("workplaceType") or "").strip()
+    if workplace_type == "Hybrid":
+        return "Hybrid"
+    if workplace_type == "Remote" or job.get("isRemote"):
         return "Remote"
     return classify_location(location)
 
