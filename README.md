@@ -1,26 +1,28 @@
 # job-search-agent
 
-Automatically collects Product Design job postings from companies that use [Greenhouse](https://www.greenhouse.io/) as their applicant tracking system (ATS).
+Automatically collects Product Design job postings from companies on [Greenhouse](https://www.greenhouse.io/), [Lever](https://www.lever.co/), and [Ashby](https://www.ashbyhq.com/).
 
-**Version 1** uses Greenhouse's public Job Board API (JSON, no authentication) to fetch open roles from configured company boards, filter for relevant design titles, and save results to `jobs.csv`.
+Uses each platform's public Job Board API (JSON, no authentication) to fetch open roles from configured company boards, filter for relevant design titles, and save results to `jobs.csv`.
 
 ## How it works
 
-Each Greenhouse customer has a public job board identified by a **board token** (the slug in URLs like `https://boards.greenhouse.io/stripe`). The collector calls:
+Each ATS exposes a public API for published job postings:
 
 ```
 GET https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
+GET https://api.lever.co/v0/postings/{site}?mode=json
+GET https://api.ashbyhq.com/posting-api/job-board/{job_board_name}
 ```
 
 Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lead, intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
 
-**Coverage note:** Greenhouse has no public API to list every company board. The scraper only searches the board tokens configured in `config.py`. Add more tokens there to expand coverage.
+**Coverage note:** None of these ATS platforms expose a public API to list every company board. The scraper only searches the board slugs configured in `config.py`. Add more slugs there to expand coverage.
 
 ## Project structure
 
 | File | Purpose |
 |------|---------|
-| `config.py` | Greenhouse board tokens, title filters, and output settings |
+| `config.py` | Board slugs for Greenhouse, Lever, and Ashby; title/location filters |
 | `job_scraper.py` | Fetches jobs from the Greenhouse API and writes `jobs.csv` |
 | `requirements.txt` | Dependencies (v1 uses stdlib only) |
 | `jobs.csv` | Output file (created on first run) |
@@ -35,14 +37,12 @@ pip install -r requirements.txt   # optional; no packages to install
 
 ## Configure boards
 
-Edit `config.py` and add Greenhouse board tokens to `GREENHOUSE_BOARDS`. The token is the path segment from the company's Greenhouse careers URL:
+Edit `config.py` and add company slugs to `GREENHOUSE_BOARDS`, `LEVER_BOARDS`, or `ASHBY_BOARDS`. The slug is the path segment from the company's careers URL:
 
 ```python
-GREENHOUSE_BOARDS = {
-    "stripe": "Stripe",
-    "figma": "Figma",
-    # ...
-}
+GREENHOUSE_BOARDS = {"stripe": "Stripe", ...}
+LEVER_BOARDS = {"ro": "Ro", ...}
+ASHBY_BOARDS = {"headway": "Headway", ...}
 ```
 
 ## Run
@@ -66,7 +66,9 @@ The script prints per-company stats, then writes matching jobs to `jobs.csv` wit
 
 | Setting | What it does |
 |---------|--------------|
-| `GREENHOUSE_BOARDS` | Companies to search (board token → display name) |
+| `GREENHOUSE_BOARDS` | Greenhouse companies to search (slug → display name) |
+| `LEVER_BOARDS` | Lever companies to search (slug → display name) |
+| `ASHBY_BOARDS` | Ashby companies to search (slug → display name) |
 | `TITLE_INCLUDES` | Title must contain one of these phrases |
 | `TITLE_EXCLUDES` | Title must not contain these phrases (manager, intern, etc.) |
 | `LOCATION_TYPES_INCLUDED` | Only jobs with these location types are saved (default: `Remote` only) |

@@ -1,26 +1,20 @@
 #!/usr/bin/env python3
 """
-Greenhouse ATS job collector (v1).
+Multi-ATS job collector.
 
-Collects Product Design job postings from configured Greenhouse public job boards
-and writes matching results to jobs.csv.
+Collects Product Design job postings from configured Greenhouse, Lever, and Ashby
+public job boards and writes matching results to jobs.csv.
 
-How Greenhouse integration works
---------------------------------
-Greenhouse hosts public career pages for many companies. Each board has a unique
-*board token* (the path segment in URLs like https://boards.greenhouse.io/{token}).
-
-Greenhouse exposes a public, read-only Job Board API that returns JSON for all
-published jobs on a board — no API key or authentication is required for listing
-jobs. This script uses that API instead of scraping HTML career pages.
-
+Supported public APIs (no authentication required)
+---------------------------------------------------
+Greenhouse:
     GET https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
 
-The response is a JSON object with a "jobs" array. Each job includes fields such as:
-  - title          — job title
-  - location.name  — location string
-  - absolute_url   — direct link to view/apply for the job
-  - id             — Greenhouse job post ID
+Lever:
+    GET https://api.lever.co/v0/postings/{site}?mode=json
+
+Ashby:
+    GET https://api.ashbyhq.com/posting-api/job-board/{job_board_name}
 
 We fetch every open job from each configured board, filter titles against the
 include/exclude rules in config.py, classify each location, keep only Remote
@@ -42,8 +36,12 @@ from datetime import date
 from pathlib import Path
 
 from config import (
+    ASHBY_API_BASE,
+    ASHBY_BOARDS,
     GREENHOUSE_API_BASE,
     GREENHOUSE_BOARDS,
+    LEVER_API_BASE,
+    LEVER_BOARDS,
     LOCATION_TYPES_INCLUDED,
     OUTPUT_CSV,
     TITLE_EXCLUDES,
@@ -233,26 +231,259 @@ def location_is_included(location_type: str) -> bool:
     return location_type in LOCATION_TYPES_INCLUDED
 
 
-def fetch_board_jobs(board_token: str) -> list[dict]:
-    """
-    Fetch all published jobs for a Greenhouse board via the public Job Board API.
+def empty_stats() -> dict[str, int]:
+    """Return a fresh stats counter dict."""
+    return {
+        "retrieved": 0,
+        "matching_title": 0,
+        "excluded_by_title": 0,
+        "excluded_by_location": 0,
+    }
 
-    Raises urllib.error.HTTPError for missing boards or other HTTP failures.
-    """
-    url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs"
+
+def merge_stats(total: dict[str, int], added: dict[str, int]) -> None:
+    """Add source-specific stats into the running total."""
+    for key in total:
+        total[key] += added[key]
+
+
+def fetch_json(url: str) -> object:
+    """Fetch and parse JSON from a public job board API endpoint."""
     request = urllib.request.Request(
         url,
         headers={"Accept": "application/json", "User-Agent": "job-search-agent/1.0"},
     )
     with urllib.request.urlopen(request, timeout=30) as response:
-        payload = json.load(response)
+        return json.load(response)
+
+
+def fetch_greenhouse_jobs(board_token: str) -> list[dict]:
+    """Fetch all published jobs for a Greenhouse board."""
+    url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs"
+    payload = fetch_json(url)
     return payload.get("jobs", [])
 
 
-def extract_location(job: dict) -> str:
+def fetch_lever_jobs(site_slug: str) -> list[dict]:
+    """Fetch all published jobs for a Lever careers site."""
+    url = f"{LEVER_API_BASE}/{site_slug}?mode=json"
+    payload = fetch_json(url)
+    return payload if isinstance(payload, list) else []
+
+
+def fetch_ashby_jobs(board_slug: str) -> list[dict]:
+    """Fetch all published jobs for an Ashby job board."""
+    url = f"{ASHBY_API_BASE}/{board_slug}"
+    payload = fetch_json(url)
+    return payload.get("jobs", [])
+
+
+def extract_greenhouse_location(job: dict) -> str:
     """Pull a human-readable location string from a Greenhouse job object."""
     location = job.get("location") or {}
     return location.get("name", "").strip()
+
+
+def extract_lever_location(job: dict) -> str:
+    """Pull a human-readable location string from a Lever posting."""
+    categories = job.get("categories") or {}
+    location = categories.get("location", "").strip()
+    if location:
+        return location
+    all_locations = categories.get("allLocations") or []
+    return ", ".join(loc.strip() for loc in all_locations if loc.strip())
+
+
+def extract_ashby_location(job: dict) -> str:
+    """Pull a human-readable location string from an Ashby posting."""
+    return job.get("location", "").strip()
+
+
+def classify_lever_location(job: dict, location: str) -> str:
+    """Classify a Lever posting as Remote or another location type."""
+    workplace_type = (job.get("workplaceType") or "").strip().casefold()
+    if workplace_type == "remote":
+        return "Remote"
+    return classify_location(location)
+
+
+def classify_ashby_location(job: dict, location: str) -> str:
+    """Classify an Ashby posting as Remote or another location type."""
+    if job.get("isRemote") or job.get("workplaceType") == "Remote":
+        return "Remote"
+    return classify_location(location)
+
+
+def make_job_row(
+    company_name: str,
+    title: str,
+    location: str,
+    location_type: str,
+    apply_url: str,
+    today: str,
+) -> dict:
+    """Build a normalized CSV row for a qualifying job posting."""
+    return {
+        "company": company_name,
+        "title": title,
+        "location": location,
+        "location_type": location_type,
+        "apply_url": apply_url,
+        "date_found": today,
+    }
+
+
+def filter_job_posting(
+    title: str,
+    location: str,
+    location_type: str,
+    stats: dict[str, int],
+) -> bool:
+    """Apply title/location filters and update stats. Returns True if job qualifies."""
+    stats["retrieved"] += 1
+
+    if not title_matches(title):
+        stats["excluded_by_title"] += 1
+        return False
+
+    stats["matching_title"] += 1
+    if not location_is_included(location_type):
+        stats["excluded_by_location"] += 1
+        return False
+
+    return True
+
+
+def collect_greenhouse_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+    """Fetch, filter, and normalize jobs from configured Greenhouse boards."""
+    stats = empty_stats()
+
+    for board_token, company_name in GREENHOUSE_BOARDS.items():
+        try:
+            jobs = fetch_greenhouse_jobs(board_token)
+        except urllib.error.HTTPError as exc:
+            print(f"Skipping {company_name} [Greenhouse/{board_token}]: HTTP {exc.code}", file=sys.stderr)
+            continue
+        except urllib.error.URLError as exc:
+            print(f"Skipping {company_name} [Greenhouse/{board_token}]: {exc.reason}", file=sys.stderr)
+            continue
+
+        board_written = 0
+        for job in jobs:
+            title = job.get("title", "").strip()
+            apply_url = job.get("absolute_url", "").strip()
+            if not title or not apply_url:
+                continue
+
+            location = extract_greenhouse_location(job)
+            location_type = classify_location(location)
+            if not filter_job_posting(title, location, location_type, stats):
+                continue
+
+            collected[apply_url] = make_job_row(
+                company_name, title, location, location_type, apply_url, today
+            )
+            board_written += 1
+
+        print(
+            f"[Greenhouse] {company_name}: {len(jobs)} open jobs, "
+            f"{board_written} written after title/location filters"
+        )
+
+    return stats
+
+
+def collect_lever_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+    """Fetch, filter, and normalize jobs from configured Lever boards."""
+    stats = empty_stats()
+
+    for site_slug, company_name in LEVER_BOARDS.items():
+        try:
+            jobs = fetch_lever_jobs(site_slug)
+        except urllib.error.HTTPError as exc:
+            print(f"Skipping {company_name} [Lever/{site_slug}]: HTTP {exc.code}", file=sys.stderr)
+            continue
+        except urllib.error.URLError as exc:
+            print(f"Skipping {company_name} [Lever/{site_slug}]: {exc.reason}", file=sys.stderr)
+            continue
+
+        board_written = 0
+        for job in jobs:
+            title = job.get("text", "").strip()
+            apply_url = (job.get("applyUrl") or job.get("hostedUrl") or "").strip()
+            if not title or not apply_url:
+                continue
+
+            location = extract_lever_location(job)
+            location_type = classify_lever_location(job, location)
+            if not filter_job_posting(title, location, location_type, stats):
+                continue
+
+            collected[apply_url] = make_job_row(
+                company_name, title, location, location_type, apply_url, today
+            )
+            board_written += 1
+
+        print(
+            f"[Lever] {company_name}: {len(jobs)} open jobs, "
+            f"{board_written} written after title/location filters"
+        )
+
+    return stats
+
+
+def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+    """Fetch, filter, and normalize jobs from configured Ashby boards."""
+    stats = empty_stats()
+
+    for board_slug, company_name in ASHBY_BOARDS.items():
+        try:
+            jobs = fetch_ashby_jobs(board_slug)
+        except urllib.error.HTTPError as exc:
+            print(f"Skipping {company_name} [Ashby/{board_slug}]: HTTP {exc.code}", file=sys.stderr)
+            continue
+        except urllib.error.URLError as exc:
+            print(f"Skipping {company_name} [Ashby/{board_slug}]: {exc.reason}", file=sys.stderr)
+            continue
+
+        board_written = 0
+        for job in jobs:
+            title = job.get("title", "").strip()
+            apply_url = (job.get("applyUrl") or job.get("jobUrl") or "").strip()
+            if not title or not apply_url:
+                continue
+
+            location = extract_ashby_location(job)
+            location_type = classify_ashby_location(job, location)
+            if not filter_job_posting(title, location, location_type, stats):
+                continue
+
+            collected[apply_url] = make_job_row(
+                company_name, title, location, location_type, apply_url, today
+            )
+            board_written += 1
+
+        print(
+            f"[Ashby] {company_name}: {len(jobs)} open jobs, "
+            f"{board_written} written after title/location filters"
+        )
+
+    return stats
+
+
+def collect_jobs() -> tuple[list[dict], dict[str, int]]:
+    """Fetch, filter, and normalize jobs from all configured ATS boards."""
+    today = date.today().isoformat()
+    collected: dict[str, dict] = {}
+    stats = empty_stats()
+
+    merge_stats(stats, collect_greenhouse_jobs(today, collected))
+    print()
+    merge_stats(stats, collect_lever_jobs(today, collected))
+    print()
+    merge_stats(stats, collect_ashby_jobs(today, collected))
+
+    return list(collected.values()), stats
 
 
 def load_existing_jobs(csv_path: Path) -> dict[str, dict]:
@@ -280,66 +511,6 @@ def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
 
     location_type = classify_location(location)
     return location_is_included(location_type), location_type
-
-
-def collect_jobs() -> tuple[list[dict], dict[str, int]]:
-    """Fetch, filter, and normalize jobs from all configured Greenhouse boards."""
-    today = date.today().isoformat()
-    collected: dict[str, dict] = {}
-    stats = {
-        "retrieved": 0,
-        "matching_title": 0,
-        "excluded_by_title": 0,
-        "excluded_by_location": 0,
-    }
-
-    for board_token, company_name in GREENHOUSE_BOARDS.items():
-        try:
-            jobs = fetch_board_jobs(board_token)
-        except urllib.error.HTTPError as exc:
-            print(f"Skipping {company_name} ({board_token}): HTTP {exc.code}", file=sys.stderr)
-            continue
-        except urllib.error.URLError as exc:
-            print(f"Skipping {company_name} ({board_token}): {exc.reason}", file=sys.stderr)
-            continue
-
-        board_written = 0
-        for job in jobs:
-            title = job.get("title", "").strip()
-            apply_url = job.get("absolute_url", "").strip()
-            if not title or not apply_url:
-                continue
-
-            stats["retrieved"] += 1
-            location = extract_location(job)
-
-            if not title_matches(title):
-                stats["excluded_by_title"] += 1
-                continue
-
-            stats["matching_title"] += 1
-            location_type = classify_location(location)
-
-            if not location_is_included(location_type):
-                stats["excluded_by_location"] += 1
-                continue
-
-            collected[apply_url] = {
-                "company": company_name,
-                "title": title,
-                "location": location,
-                "location_type": location_type,
-                "apply_url": apply_url,
-                "date_found": today,
-            }
-            board_written += 1
-
-        print(
-            f"{company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
-        )
-
-    return list(collected.values()), stats
 
 
 def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int]:
@@ -388,7 +559,7 @@ def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
 
 
 def main() -> None:
-    print("Collecting Product Design jobs from Greenhouse boards...\n")
+    print("Collecting Product Design jobs from Greenhouse, Lever, and Ashby boards...\n")
     jobs, stats = collect_jobs()
     csv_path = Path(OUTPUT_CSV)
     added, total_written = save_jobs(csv_path, jobs)
