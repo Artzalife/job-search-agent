@@ -41,6 +41,7 @@ import json
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -135,6 +136,27 @@ US_STATE_NAMES = {
 }
 OFFICE_LOCATION_RE = re.compile(
     r"^[A-Za-z .'-]+,\s*([A-Z]{2}|[A-Za-z .'-]+)$"
+)
+GREENHOUSE_BOARD_JOB_RE = re.compile(
+    r"https?://(?:boards|job-boards)\.greenhouse\.io/(?P<board>[^/]+)/jobs/(?P<job_id>\d+)",
+    re.I,
+)
+GREENHOUSE_GH_JID_RE = re.compile(r"[?&]gh_jid=(?P<job_id>\d+)", re.I)
+LEVER_POSTING_RE = re.compile(
+    r"https?://jobs\.lever\.co/(?P<site>[^/]+)/(?P<posting_id>[0-9a-f-]{36})",
+    re.I,
+)
+ASHBY_POSTING_RE = re.compile(
+    r"https?://jobs\.ashbyhq\.com/(?P<board>[^/]+)/(?P<posting_id>[0-9a-f-]{36})",
+    re.I,
+)
+WORKABLE_POSTING_RE = re.compile(
+    r"https?://apply\.workable\.com/j/(?P<shortcode>[A-Z0-9]+)",
+    re.I,
+)
+WORKDAY_POSTING_RE = re.compile(
+    r"https?://(?P<tenant>[^.]+)\.(?P<wd>wd\d+)\.myworkdayjobs\.com/(?P<site>[^/]+)(?P<path>/job/.+)",
+    re.I,
 )
 
 
@@ -290,6 +312,140 @@ def fetch_json_post(url: str, payload: dict) -> object:
         return json.load(response)
 
 
+def fetch_json_allow_404(url: str) -> tuple[int, object | None]:
+    """Fetch JSON and return (status_code, payload). Payload is None on HTTP errors."""
+    request = urllib.request.Request(
+        url,
+        headers={"Accept": "application/json", "User-Agent": "job-search-agent/1.0"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            return response.status, json.load(response)
+    except urllib.error.HTTPError as exc:
+        return exc.code, None
+    except urllib.error.URLError:
+        return -1, None
+
+
+def greenhouse_board_tokens() -> set[str]:
+    """Return configured Greenhouse board tokens for posting verification."""
+    return set(GREENHOUSE_BOARDS.keys())
+
+
+def is_greenhouse_job_active(board_token: str, job_id: str) -> bool | None:
+    """Return True when a Greenhouse job still exists on a board API."""
+    url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs/{job_id}"
+    status, _payload = fetch_json_allow_404(url)
+    if status == 200:
+        return True
+    if status == 404:
+        return False
+    return None
+
+
+def is_lever_posting_active(site_slug: str, posting_id: str) -> bool | None:
+    """Return True when a Lever posting is still published."""
+    url = f"{LEVER_API_BASE}/{site_slug}?mode=json"
+    status, payload = fetch_json_allow_404(url)
+    if status != 200 or not isinstance(payload, list):
+        return None
+    return any(posting.get("id") == posting_id for posting in payload)
+
+
+def is_ashby_posting_active(board_slug: str, posting_id: str) -> bool | None:
+    """Return True when an Ashby posting is still published."""
+    url = f"{ASHBY_API_BASE}/{board_slug}"
+    status, payload = fetch_json_allow_404(url)
+    if status != 200 or not isinstance(payload, dict):
+        return None
+    for job in payload.get("jobs", []):
+        apply_url = (job.get("applyUrl") or job.get("jobUrl") or "").strip()
+        if posting_id in apply_url:
+            return True
+    return False
+
+
+def is_workable_posting_active(subdomain: str, shortcode: str) -> bool | None:
+    """Return True when a Workable posting is still published."""
+    url = f"{WORKABLE_API_BASE}/{subdomain}?details=true"
+    status, payload = fetch_json_allow_404(url)
+    if status != 200 or not isinstance(payload, dict):
+        return None
+    for job in payload.get("jobs", []):
+        if (job.get("shortcode") or "").strip().upper() == shortcode.upper():
+            return True
+    return False
+
+
+def is_workday_posting_active(tenant: str, wd_server: str, site: str, path: str) -> bool | None:
+    """Return True when a Workday posting detail endpoint still responds."""
+    detail_url = workday_job_detail_url(tenant, wd_server, site, path)
+    status, payload = fetch_json_allow_404(detail_url)
+    if status == 200 and isinstance(payload, dict):
+        return bool(payload.get("jobPostingInfo"))
+    if status == 404:
+        return False
+    return None
+
+
+def is_posting_active(apply_url: str, company: str = "") -> bool | None:
+    """
+    Check whether a job posting is still open using ATS-specific public APIs.
+
+    Returns True when active, False when closed, or None when the status
+    cannot be determined (network/API errors).
+    """
+    match = GREENHOUSE_BOARD_JOB_RE.search(apply_url)
+    if match:
+        return is_greenhouse_job_active(match.group("board"), match.group("job_id"))
+
+    gh_jid_match = GREENHOUSE_GH_JID_RE.search(apply_url)
+    if gh_jid_match:
+        job_id = gh_jid_match.group("job_id")
+        boards_to_try: list[str] = []
+        company_key = company.casefold().replace(" ", "")
+        if company_key in greenhouse_board_tokens():
+            boards_to_try.append(company_key)
+        host = urllib.parse.urlparse(apply_url).netloc.casefold()
+        if "pinterest" in host and "pinterest" not in boards_to_try:
+            boards_to_try.append("pinterest")
+        if not boards_to_try:
+            return None
+        for board_token in boards_to_try:
+            active = is_greenhouse_job_active(board_token, job_id)
+            if active is not None:
+                return active
+        return None
+
+    match = LEVER_POSTING_RE.search(apply_url)
+    if match:
+        return is_lever_posting_active(match.group("site"), match.group("posting_id"))
+
+    match = ASHBY_POSTING_RE.search(apply_url)
+    if match:
+        return is_ashby_posting_active(match.group("board"), match.group("posting_id"))
+
+    match = WORKABLE_POSTING_RE.search(apply_url)
+    if match:
+        shortcode = match.group("shortcode")
+        for subdomain in WORKABLE_BOARDS:
+            active = is_workable_posting_active(subdomain, shortcode)
+            if active is True:
+                return True
+        return False
+
+    match = WORKDAY_POSTING_RE.search(apply_url)
+    if match:
+        return is_workday_posting_active(
+            match.group("tenant"),
+            match.group("wd"),
+            match.group("site"),
+            match.group("path"),
+        )
+
+    return None
+
+
 def fetch_greenhouse_jobs(board_token: str) -> list[dict]:
     """Fetch all published jobs for a Greenhouse board, including descriptions."""
     url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs?content=true"
@@ -328,6 +484,12 @@ def workday_job_detail_url(tenant: str, wd_server: str, site: str, external_path
     """Build the Workday CXS job detail endpoint for a posting."""
     host = f"{tenant}.{wd_server}.myworkdayjobs.com"
     return f"https://{host}/wday/cxs/{tenant}/{site}{external_path}"
+
+
+def workday_apply_url(tenant: str, wd_server: str, site: str, external_path: str) -> str:
+    """Build the public apply URL for a Workday posting summary."""
+    host = f"{tenant}.{wd_server}.myworkdayjobs.com"
+    return f"https://{host}/{site}{external_path}"
 
 
 def fetch_workday_jobs(tenant: str, wd_server: str, site: str) -> list[dict]:
@@ -528,7 +690,8 @@ def archive_job_description(
     Save a job description Markdown file when the job is first discovered.
 
     Returns the relative path and whether a new file was written. Existing
-    files are never overwritten.
+    files are never overwritten or deleted, including when a posting later
+    closes and is removed from jobs.csv.
     """
     apply_url = job["apply_url"]
     if apply_url in existing_paths_by_url:
@@ -661,7 +824,11 @@ def filter_job_posting(
     return True
 
 
-def collect_greenhouse_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+def collect_greenhouse_jobs(
+    today: str,
+    collected: dict[str, dict],
+    live_apply_urls: set[str],
+) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Greenhouse boards."""
     stats = empty_stats()
 
@@ -682,6 +849,7 @@ def collect_greenhouse_jobs(today: str, collected: dict[str, dict]) -> dict[str,
             if not title or not apply_url:
                 continue
 
+            live_apply_urls.add(apply_url)
             location = extract_greenhouse_location(job)
             location_type = classify_location(location)
             if not filter_job_posting(title, location, location_type, stats):
@@ -706,7 +874,11 @@ def collect_greenhouse_jobs(today: str, collected: dict[str, dict]) -> dict[str,
     return stats
 
 
-def collect_lever_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+def collect_lever_jobs(
+    today: str,
+    collected: dict[str, dict],
+    live_apply_urls: set[str],
+) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Lever boards."""
     stats = empty_stats()
 
@@ -727,6 +899,7 @@ def collect_lever_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
             if not title or not apply_url:
                 continue
 
+            live_apply_urls.add(apply_url)
             location = extract_lever_location(job)
             location_type = classify_lever_location(job, location)
             if not filter_job_posting(title, location, location_type, stats):
@@ -751,7 +924,11 @@ def collect_lever_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
     return stats
 
 
-def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+def collect_ashby_jobs(
+    today: str,
+    collected: dict[str, dict],
+    live_apply_urls: set[str],
+) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Ashby boards."""
     stats = empty_stats()
 
@@ -772,6 +949,7 @@ def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
             if not title or not apply_url:
                 continue
 
+            live_apply_urls.add(apply_url)
             location = extract_ashby_location(job)
             location_type = classify_ashby_location(job, location)
             if not filter_job_posting(title, location, location_type, stats):
@@ -796,7 +974,11 @@ def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
     return stats
 
 
-def collect_workable_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+def collect_workable_jobs(
+    today: str,
+    collected: dict[str, dict],
+    live_apply_urls: set[str],
+) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Workable boards."""
     stats = empty_stats()
 
@@ -823,6 +1005,7 @@ def collect_workable_jobs(today: str, collected: dict[str, dict]) -> dict[str, i
             if not title or not apply_url:
                 continue
 
+            live_apply_urls.add(apply_url)
             location = extract_workable_location(job)
             location_type = classify_workable_location(job, location)
             location = ensure_remote_location_label(location, location_type)
@@ -848,7 +1031,11 @@ def collect_workable_jobs(today: str, collected: dict[str, dict]) -> dict[str, i
     return stats
 
 
-def collect_workday_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+def collect_workday_jobs(
+    today: str,
+    collected: dict[str, dict],
+    live_apply_urls: set[str],
+) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Workday career sites."""
     stats = empty_stats()
 
@@ -879,6 +1066,7 @@ def collect_workday_jobs(today: str, collected: dict[str, dict]) -> dict[str, in
             if not title or not external_path:
                 continue
 
+            live_apply_urls.add(workday_apply_url(tenant, wd_server, site, external_path))
             stats["retrieved"] += 1
             if not title_matches(title):
                 stats["excluded_by_title"] += 1
@@ -905,6 +1093,7 @@ def collect_workday_jobs(today: str, collected: dict[str, dict]) -> dict[str, in
             if not apply_url:
                 continue
 
+            live_apply_urls.add(apply_url)
             location = extract_workday_location(job, job_detail)
             location_type = classify_workday_location(job_detail, location)
             location = ensure_remote_location_label(location, location_type)
@@ -931,23 +1120,24 @@ def collect_workday_jobs(today: str, collected: dict[str, dict]) -> dict[str, in
     return stats
 
 
-def collect_jobs() -> tuple[list[dict], dict[str, int]]:
+def collect_jobs() -> tuple[list[dict], dict[str, int], set[str]]:
     """Fetch, filter, and normalize jobs from all configured ATS boards."""
     today = date.today().isoformat()
     collected: dict[str, dict] = {}
+    live_apply_urls: set[str] = set()
     stats = empty_stats()
 
-    merge_stats(stats, collect_greenhouse_jobs(today, collected))
+    merge_stats(stats, collect_greenhouse_jobs(today, collected, live_apply_urls))
     print()
-    merge_stats(stats, collect_lever_jobs(today, collected))
+    merge_stats(stats, collect_lever_jobs(today, collected, live_apply_urls))
     print()
-    merge_stats(stats, collect_ashby_jobs(today, collected))
+    merge_stats(stats, collect_ashby_jobs(today, collected, live_apply_urls))
     print()
-    merge_stats(stats, collect_workable_jobs(today, collected))
+    merge_stats(stats, collect_workable_jobs(today, collected, live_apply_urls))
     print()
-    merge_stats(stats, collect_workday_jobs(today, collected))
+    merge_stats(stats, collect_workday_jobs(today, collected, live_apply_urls))
 
-    return list(collected.values()), stats
+    return list(collected.values()), stats, live_apply_urls
 
 
 def load_existing_jobs(csv_path: Path) -> dict[str, dict]:
@@ -977,13 +1167,18 @@ def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
     return location_is_included(location_type), location_type
 
 
-def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int, int]:
+def save_jobs(
+    csv_path: Path,
+    new_jobs: list[dict],
+    live_apply_urls: set[str],
+) -> tuple[int, int, int, int]:
     """
     Merge new jobs into the CSV, deduplicating by apply_url.
 
-    Archives Markdown descriptions for newly discovered jobs. Existing rows
-    that no longer pass filters are dropped. Returns
-    (newly_added_count, total_rows_written, descriptions_archived).
+    Only jobs confirmed open on this run are kept. Archives Markdown
+    descriptions for newly discovered jobs. Removing a row from jobs.csv
+    never deletes its archived description file under job_descriptions/.
+    Returns (newly_added_count, total_rows_written, descriptions_archived, removed_count).
     """
     existing = load_existing_jobs(csv_path)
     pruned: dict[str, dict] = {}
@@ -995,30 +1190,24 @@ def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int, int]:
     }
     archived = 0
 
-    for apply_url, row in existing.items():
-        qualifies, location_type = job_qualifies(
-            row.get("title", ""),
-            row.get("location", ""),
-        )
-        if not qualifies:
-            continue
-        row["location_type"] = location_type
-        row["description_file"] = row.get("description_file", "").strip()
-        pruned[apply_url] = row
-
-    added = 0
     for job in new_jobs:
-        is_new = job["apply_url"] not in pruned
-        if is_new:
-            added += 1
+        apply_url = job["apply_url"]
+        if apply_url not in live_apply_urls:
+            active = is_posting_active(apply_url, job.get("company", ""))
+            if active is False:
+                print(
+                    f"Skipping closed posting: {job.get('company', '')} — {job.get('title', '')}",
+                    file=sys.stderr,
+                )
+                continue
 
-        merged = pruned.get(job["apply_url"], {})
+        merged = existing.get(apply_url, {})
         job_row = {
             "company": job["company"],
             "title": job["title"],
             "location": job["location"],
             "location_type": job["location_type"],
-            "apply_url": job["apply_url"],
+            "apply_url": apply_url,
             "date_found": merged.get("date_found", job["date_found"]),
             "description_file": merged.get("description_file", "").strip(),
             "description": job.get("description", ""),
@@ -1032,22 +1221,40 @@ def save_jobs(csv_path: Path, new_jobs: list[dict]) -> tuple[int, int, int]:
                 existing_paths_by_url,
             )
             job_row["description_file"] = description_file
-            existing_paths_by_url[job["apply_url"]] = description_file
+            existing_paths_by_url[apply_url] = description_file
             if created:
                 archived += 1
 
-        pruned[job["apply_url"]] = {
+        pruned[apply_url] = {
             key: job_row[key]
             for key in CSV_COLUMNS
         }
 
+    removed = 0
+    for apply_url, row in existing.items():
+        if apply_url in pruned:
+            continue
+        removed += 1
+        if apply_url in live_apply_urls:
+            reason = "no longer matches filters"
+        elif is_posting_active(apply_url, row.get("company", "")) is False:
+            reason = "posting closed"
+        else:
+            reason = "not found on latest scrape"
+        print(
+            f"Removing ({reason}): {row.get('company', '')} — {row.get('title', '')}"
+            f" (description archive kept)",
+            file=sys.stderr,
+        )
+
+    added = sum(1 for apply_url in pruned if apply_url not in existing)
     rows = sorted(pruned.values(), key=lambda row: (row["company"], row["title"]))
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
         writer.writeheader()
         writer.writerows(rows)
 
-    return added, len(rows), archived
+    return added, len(rows), archived, removed
 
 
 def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
@@ -1065,13 +1272,13 @@ def main() -> None:
         "Collecting Product Design jobs from Greenhouse, Lever, Ashby, "
         "Workable, and Workday boards...\n"
     )
-    jobs, stats = collect_jobs()
+    jobs, stats, live_apply_urls = collect_jobs()
     csv_path = Path(OUTPUT_CSV)
-    added, total_written, archived = save_jobs(csv_path, jobs)
+    added, total_written, archived, removed = save_jobs(csv_path, jobs, live_apply_urls)
 
     print_summary(stats, len(jobs))
     print(f"\nSaved to {csv_path.resolve()}")
-    print(f"Added {added} new row(s); total rows in CSV: {total_written}")
+    print(f"Added {added} new row(s); removed {removed} inactive/stale row(s); total rows in CSV: {total_written}")
     print(f"Archived {archived} new job description(s) to {Path(DESCRIPTIONS_DIR).resolve()}")
 
 
