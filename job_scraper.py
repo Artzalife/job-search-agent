@@ -2,8 +2,8 @@
 """
 Multi-ATS job collector.
 
-Collects Product Design job postings from configured Greenhouse, Lever, and Ashby
-public job boards and writes matching results to jobs.csv.
+Collects Product Design job postings from configured Greenhouse, Lever, Ashby,
+Workable, and Workday public job boards and writes matching results to jobs.csv.
 
 Supported public APIs (no authentication required)
 ---------------------------------------------------
@@ -15,6 +15,13 @@ Lever:
 
 Ashby:
     GET https://api.ashbyhq.com/posting-api/job-board/{job_board_name}
+
+Workable:
+    GET https://www.workable.com/api/accounts/{subdomain}?details=true
+
+Workday:
+    POST https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
+    GET  https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}{externalPath}
 
 We fetch every open job from each configured board, filter titles against the
 include/exclude rules in config.py, classify each location, keep only Remote
@@ -50,6 +57,9 @@ from config import (
     OUTPUT_CSV,
     TITLE_EXCLUDES,
     TITLE_INCLUDES,
+    WORKABLE_API_BASE,
+    WORKABLE_BOARDS,
+    WORKDAY_BOARDS,
 )
 
 CSV_COLUMNS = [
@@ -263,6 +273,23 @@ def fetch_json(url: str) -> object:
         return json.load(response)
 
 
+def fetch_json_post(url: str, payload: dict) -> object:
+    """POST JSON to a public job board API endpoint and parse the response."""
+    body = json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "job-search-agent/1.0",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return json.load(response)
+
+
 def fetch_greenhouse_jobs(board_token: str) -> list[dict]:
     """Fetch all published jobs for a Greenhouse board, including descriptions."""
     url = f"{GREENHOUSE_API_BASE}/{board_token}/jobs?content=true"
@@ -284,6 +311,68 @@ def fetch_ashby_jobs(board_slug: str) -> list[dict]:
     return payload.get("jobs", [])
 
 
+def fetch_workable_jobs(subdomain: str) -> list[dict]:
+    """Fetch all published jobs for a Workable account, including descriptions."""
+    url = f"{WORKABLE_API_BASE}/{subdomain}?details=true"
+    payload = fetch_json(url)
+    return payload.get("jobs", [])
+
+
+def workday_jobs_url(tenant: str, wd_server: str, site: str) -> str:
+    """Build the Workday CXS job search endpoint for a career site."""
+    host = f"{tenant}.{wd_server}.myworkdayjobs.com"
+    return f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
+
+
+def workday_job_detail_url(tenant: str, wd_server: str, site: str, external_path: str) -> str:
+    """Build the Workday CXS job detail endpoint for a posting."""
+    host = f"{tenant}.{wd_server}.myworkdayjobs.com"
+    return f"https://{host}/wday/cxs/{tenant}/{site}{external_path}"
+
+
+def fetch_workday_jobs(tenant: str, wd_server: str, site: str) -> list[dict]:
+    """Fetch all published job summaries for a Workday career site."""
+    url = workday_jobs_url(tenant, wd_server, site)
+    jobs: list[dict] = []
+    offset = 0
+    limit = 20
+    total: int | None = None
+
+    while True:
+        payload = fetch_json_post(
+            url,
+            {"appliedFacets": {}, "limit": limit, "offset": offset, "searchText": ""},
+        )
+        batch = payload.get("jobPostings", [])
+        if not batch:
+            break
+
+        page_total = payload.get("total")
+        if page_total and total is None:
+            total = page_total
+
+        jobs.extend(batch)
+        offset += limit
+        if total and offset >= total:
+            break
+        if len(batch) < limit:
+            break
+
+    return jobs
+
+
+def fetch_workday_job_detail(
+    tenant: str,
+    wd_server: str,
+    site: str,
+    external_path: str,
+) -> dict:
+    """Fetch full posting details for a Workday job summary."""
+    url = workday_job_detail_url(tenant, wd_server, site, external_path)
+    payload = fetch_json(url)
+    return payload.get("jobPostingInfo", {})
+
+
 def extract_greenhouse_location(job: dict) -> str:
     """Pull a human-readable location string from a Greenhouse job object."""
     location = job.get("location") or {}
@@ -303,6 +392,46 @@ def extract_lever_location(job: dict) -> str:
 def extract_ashby_location(job: dict) -> str:
     """Pull a human-readable location string from an Ashby posting."""
     return job.get("location", "").strip()
+
+
+def extract_workable_location(job: dict) -> str:
+    """Pull a human-readable location string from a Workable posting."""
+    location = (job.get("location") or "").strip()
+    if location:
+        return location
+
+    parts: list[str] = []
+    for entry in job.get("locations") or []:
+        if entry.get("hidden"):
+            continue
+        city = (entry.get("city") or "").strip()
+        region = (entry.get("region") or "").strip()
+        country = (entry.get("country") or "").strip()
+        if city and region:
+            parts.append(f"{city}, {region}")
+        elif city and country:
+            parts.append(f"{city}, {country}")
+        elif city:
+            parts.append(city)
+
+    if parts:
+        return "; ".join(parts)
+
+    city = (job.get("city") or "").strip()
+    country = (job.get("country") or "").strip()
+    if city and country:
+        return f"{city}, {country}"
+    return city or country
+
+
+def extract_workday_location(job_summary: dict, job_detail: dict | None = None) -> str:
+    """Pull a human-readable location string from Workday list/detail payloads."""
+    if job_detail:
+        detail_location = (job_detail.get("location") or "").strip()
+        if detail_location:
+            return detail_location
+
+    return (job_summary.get("locationsText") or "").strip()
 
 
 def html_to_text(value: str) -> str:
@@ -340,6 +469,18 @@ def extract_ashby_description(job: dict) -> str:
         return plain.strip()
     html_value = job.get("descriptionHtml", "")
     return html_to_text(html_value) if html_value else ""
+
+
+def extract_workable_description(job: dict) -> str:
+    """Extract plain-text description from a Workable posting."""
+    description = job.get("description", "")
+    return html_to_text(description) if description else ""
+
+
+def extract_workday_description(job_detail: dict) -> str:
+    """Extract plain-text description from a Workday job detail payload."""
+    description = job_detail.get("jobDescription", "")
+    return html_to_text(description) if description else ""
 
 
 def slugify(value: str) -> str:
@@ -441,6 +582,40 @@ def classify_ashby_location(job: dict, location: str) -> str:
     if workplace_type == "Remote" or job.get("isRemote"):
         return "Remote"
     return classify_location(location)
+
+
+def classify_workable_location(job: dict, location: str) -> str:
+    """Classify a Workable posting as Remote, Hybrid, or another location type."""
+    if job.get("telecommuting"):
+        if "hybrid" in location.casefold():
+            return "Hybrid"
+        return "Remote"
+    return classify_location(location)
+
+
+def classify_workday_location(job_detail: dict, location: str) -> str:
+    """Classify a Workday posting as Remote, Hybrid, or another location type."""
+    remote_type = (job_detail.get("remoteType") or "").strip()
+    if remote_type:
+        normalized = remote_type.casefold()
+        if "hybrid" in normalized:
+            return "Hybrid"
+        if "remote" in normalized:
+            return "Remote"
+        if "office" in normalized or "flexible" in normalized or "on-site" in normalized:
+            return "Hybrid"
+    return classify_location(location)
+
+
+def ensure_remote_location_label(location: str, location_type: str) -> str:
+    """Prefix location text with Remote when classified remote but string lacks it."""
+    if location_type != "Remote":
+        return location
+    if any(keyword in location.casefold() for keyword in REMOTE_KEYWORDS):
+        return location
+    if location.strip():
+        return f"Remote — {location.strip()}"
+    return "Remote"
 
 
 def make_job_row(
@@ -621,6 +796,141 @@ def collect_ashby_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]
     return stats
 
 
+def collect_workable_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+    """Fetch, filter, and normalize jobs from configured Workable boards."""
+    stats = empty_stats()
+
+    for subdomain, company_name in WORKABLE_BOARDS.items():
+        try:
+            jobs = fetch_workable_jobs(subdomain)
+        except urllib.error.HTTPError as exc:
+            print(
+                f"Skipping {company_name} [Workable/{subdomain}]: HTTP {exc.code}",
+                file=sys.stderr,
+            )
+            continue
+        except urllib.error.URLError as exc:
+            print(
+                f"Skipping {company_name} [Workable/{subdomain}]: {exc.reason}",
+                file=sys.stderr,
+            )
+            continue
+
+        board_written = 0
+        for job in jobs:
+            title = job.get("title", "").strip()
+            apply_url = (job.get("application_url") or job.get("url") or "").strip()
+            if not title or not apply_url:
+                continue
+
+            location = extract_workable_location(job)
+            location_type = classify_workable_location(job, location)
+            location = ensure_remote_location_label(location, location_type)
+            if not filter_job_posting(title, location, location_type, stats):
+                continue
+
+            collected[apply_url] = make_job_row(
+                company_name,
+                title,
+                location,
+                location_type,
+                apply_url,
+                today,
+                extract_workable_description(job),
+            )
+            board_written += 1
+
+        print(
+            f"[Workable] {company_name}: {len(jobs)} open jobs, "
+            f"{board_written} written after title/location filters"
+        )
+
+    return stats
+
+
+def collect_workday_jobs(today: str, collected: dict[str, dict]) -> dict[str, int]:
+    """Fetch, filter, and normalize jobs from configured Workday career sites."""
+    stats = empty_stats()
+
+    for tenant, board in WORKDAY_BOARDS.items():
+        company_name = board["name"]
+        wd_server = board["wd_server"]
+        site = board["site"]
+
+        try:
+            jobs = fetch_workday_jobs(tenant, wd_server, site)
+        except urllib.error.HTTPError as exc:
+            print(
+                f"Skipping {company_name} [Workday/{tenant}/{site}]: HTTP {exc.code}",
+                file=sys.stderr,
+            )
+            continue
+        except urllib.error.URLError as exc:
+            print(
+                f"Skipping {company_name} [Workday/{tenant}/{site}]: {exc.reason}",
+                file=sys.stderr,
+            )
+            continue
+
+        board_written = 0
+        for job in jobs:
+            title = job.get("title", "").strip()
+            external_path = (job.get("externalPath") or "").strip()
+            if not title or not external_path:
+                continue
+
+            stats["retrieved"] += 1
+            if not title_matches(title):
+                stats["excluded_by_title"] += 1
+                continue
+
+            stats["matching_title"] += 1
+
+            try:
+                job_detail = fetch_workday_job_detail(tenant, wd_server, site, external_path)
+            except urllib.error.HTTPError as exc:
+                print(
+                    f"Skipping {company_name} job '{title}': detail HTTP {exc.code}",
+                    file=sys.stderr,
+                )
+                continue
+            except urllib.error.URLError as exc:
+                print(
+                    f"Skipping {company_name} job '{title}': detail {exc.reason}",
+                    file=sys.stderr,
+                )
+                continue
+
+            apply_url = (job_detail.get("externalUrl") or "").strip()
+            if not apply_url:
+                continue
+
+            location = extract_workday_location(job, job_detail)
+            location_type = classify_workday_location(job_detail, location)
+            location = ensure_remote_location_label(location, location_type)
+            if not location_is_included(location_type):
+                stats["excluded_by_location"] += 1
+                continue
+
+            collected[apply_url] = make_job_row(
+                company_name,
+                title,
+                location,
+                location_type,
+                apply_url,
+                today,
+                extract_workday_description(job_detail),
+            )
+            board_written += 1
+
+        print(
+            f"[Workday] {company_name}: {len(jobs)} open jobs, "
+            f"{board_written} written after title/location filters"
+        )
+
+    return stats
+
+
 def collect_jobs() -> tuple[list[dict], dict[str, int]]:
     """Fetch, filter, and normalize jobs from all configured ATS boards."""
     today = date.today().isoformat()
@@ -632,6 +942,10 @@ def collect_jobs() -> tuple[list[dict], dict[str, int]]:
     merge_stats(stats, collect_lever_jobs(today, collected))
     print()
     merge_stats(stats, collect_ashby_jobs(today, collected))
+    print()
+    merge_stats(stats, collect_workable_jobs(today, collected))
+    print()
+    merge_stats(stats, collect_workday_jobs(today, collected))
 
     return list(collected.values()), stats
 
@@ -747,7 +1061,10 @@ def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
 
 
 def main() -> None:
-    print("Collecting Product Design jobs from Greenhouse, Lever, and Ashby boards...\n")
+    print(
+        "Collecting Product Design jobs from Greenhouse, Lever, Ashby, "
+        "Workable, and Workday boards...\n"
+    )
     jobs, stats = collect_jobs()
     csv_path = Path(OUTPUT_CSV)
     added, total_written, archived = save_jobs(csv_path, jobs)

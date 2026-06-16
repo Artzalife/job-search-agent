@@ -6,6 +6,8 @@ Supported platforms
 - Greenhouse: https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
 - Lever:      https://api.lever.co/v0/postings/{site}?mode=json
 - Ashby:      https://api.ashbyhq.com/posting-api/job-board/{job_board_name}
+- Workable:   https://www.workable.com/api/accounts/{subdomain}?details=true
+- Workday:    POST https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
 
 Each company board is identified by a slug from its public careers URL.
 Add or remove entries below to control which companies are searched.
@@ -200,6 +202,85 @@ ASHBY_BOARDS = {
   "whoop": "WHOOP",
 }
 
+# Workable account subdomains → display name (apply.workable.com/{subdomain}).
+# Healthcare/medtech boards listed first.
+WORKABLE_BOARDS = {
+    "editas": "Editas Medicine",
+    "steadymd": "SteadyMD",
+    "accuragen": "AccuraGen",
+    "drug-hunter": "Drug Hunter",
+    "cambridge-healthcare-research": "Cambridge Healthcare Research",
+    "sokol-gxp-serivces": "SOKOL GxP Services",
+}
+
+# Workday career sites → display name and API routing metadata.
+# Find tenant/site from the company's myworkdayjobs.com careers URL:
+#   https://{tenant}.{wd_server}.myworkdayjobs.com/{site}/...
+# Healthcare/medtech boards listed first. Large boards (e.g. CVS) are omitted
+# to keep run times reasonable.
+WORKDAY_BOARDS = {
+    "medtronic": {
+        "name": "Medtronic",
+        "wd_server": "wd1",
+        "site": "MedtronicCareers",
+    },
+    "pfizer": {
+        "name": "Pfizer",
+        "wd_server": "wd1",
+        "site": "PfizerCareers",
+    },
+    "stryker": {
+        "name": "Stryker",
+        "wd_server": "wd1",
+        "site": "StrykerCareers",
+    },
+    "novartis": {
+        "name": "Novartis",
+        "wd_server": "wd3",
+        "site": "Novartis_Careers",
+    },
+    "gsk": {
+        "name": "GSK",
+        "wd_server": "wd5",
+        "site": "GSKCareers",
+    },
+    "gilead": {
+        "name": "Gilead",
+        "wd_server": "wd1",
+        "site": "gileadcareers",
+    },
+    "sanofi": {
+        "name": "Sanofi",
+        "wd_server": "wd3",
+        "site": "SanofiCareers",
+    },
+    "humana": {
+        "name": "Humana",
+        "wd_server": "wd5",
+        "site": "Humana_External_Career_Site",
+    },
+    "centene": {
+        "name": "Centene",
+        "wd_server": "wd5",
+        "site": "Centene_External",
+    },
+    "baxter": {
+        "name": "Baxter",
+        "wd_server": "wd1",
+        "site": "Baxter",
+    },
+    "dexcom": {
+        "name": "Dexcom",
+        "wd_server": "wd1",
+        "site": "Dexcom",
+    },
+    "iqvia": {
+        "name": "IQVIA",
+        "wd_server": "wd1",
+        "site": "IQVIA",
+    },
+}
+
 # Job titles must contain at least one of these phrases (case-insensitive).
 TITLE_INCLUDES = [
     "Product Designer",
@@ -241,3 +322,6 @@ LEVER_API_BASE = "https://api.lever.co/v0/postings"
 
 # Ashby Job Postings API base URL (public, read-only, no authentication).
 ASHBY_API_BASE = "https://api.ashbyhq.com/posting-api/job-board"
+
+# Workable public account API base URL (public, read-only, no authentication).
+WORKABLE_API_BASE = "https://www.workable.com/api/accounts"

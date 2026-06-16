@@ -1,6 +1,6 @@
 # job-search-agent
 
-Automatically collects Product Design job postings from companies on [Greenhouse](https://www.greenhouse.io/), [Lever](https://www.lever.co/), and [Ashby](https://www.ashbyhq.com/).
+Automatically collects Product Design job postings from companies on [Greenhouse](https://www.greenhouse.io/), [Lever](https://www.lever.co/), [Ashby](https://www.ashbyhq.com/), [Workable](https://www.workable.com/), and [Workday](https://www.workday.com/).
 
 Uses each platform's public Job Board API (JSON, no authentication) to fetch open roles from configured company boards, filter for relevant design titles, and save results to `jobs.csv`.
 
@@ -12,6 +12,8 @@ Each ATS exposes a public API for published job postings:
 GET https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
 GET https://api.lever.co/v0/postings/{site}?mode=json
 GET https://api.ashbyhq.com/posting-api/job-board/{job_board_name}
+GET https://www.workable.com/api/accounts/{subdomain}?details=true
+POST https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
 ```
 
 Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lead, intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
@@ -22,8 +24,8 @@ Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lea
 
 | File | Purpose |
 |------|---------|
-| `config.py` | Board slugs for Greenhouse, Lever, and Ashby; title/location filters |
-| `job_scraper.py` | Fetches jobs from Greenhouse, Lever, and Ashby and writes `jobs.csv` |
+| `config.py` | Board slugs for Greenhouse, Lever, Ashby, Workable, and Workday; title/location filters |
+| `job_scraper.py` | Fetches jobs from all configured ATS platforms and writes `jobs.csv` |
 | `requirements.txt` | Dependencies (v1 uses stdlib only) |
 | `jobs.csv` | Output file (created on first run) |
 | `job_descriptions/` | Archived Markdown job descriptions (organized by year) |
@@ -38,12 +40,17 @@ pip install -r requirements.txt   # optional; no packages to install
 
 ## Configure boards
 
-Edit `config.py` and add company slugs to `GREENHOUSE_BOARDS`, `LEVER_BOARDS`, or `ASHBY_BOARDS`. The slug is the path segment from the company's careers URL:
+Edit `config.py` and add company slugs to `GREENHOUSE_BOARDS`, `LEVER_BOARDS`, `ASHBY_BOARDS`, `WORKABLE_BOARDS`, or `WORKDAY_BOARDS`. The slug is the path segment from the company's careers URL:
 
 ```python
 GREENHOUSE_BOARDS = {"stripe": "Stripe", ...}
 LEVER_BOARDS = {"ro": "Ro", ...}
 ASHBY_BOARDS = {"headway": "Headway", ...}
+WORKABLE_BOARDS = {"steadymd": "SteadyMD", ...}
+WORKDAY_BOARDS = {
+    "dexcom": {"name": "Dexcom", "wd_server": "wd1", "site": "Dexcom"},
+    ...
+}
 ```
 
 ## Run
@@ -97,6 +104,8 @@ The archive uses only the Python standard library and relative paths, so it work
 | `GREENHOUSE_BOARDS` | Greenhouse companies to search (slug → display name) |
 | `LEVER_BOARDS` | Lever companies to search (slug → display name) |
 | `ASHBY_BOARDS` | Ashby companies to search (slug → display name) |
+| `WORKABLE_BOARDS` | Workable companies to search (subdomain → display name) |
+| `WORKDAY_BOARDS` | Workday companies to search (tenant → name/wd_server/site) |
 | `TITLE_INCLUDES` | Title must contain one of these phrases |
 | `TITLE_EXCLUDES` | Title must not contain these phrases (manager, intern, etc.) |
 | `LOCATION_TYPES_INCLUDED` | Only jobs with these location types are saved (default: `Remote` only) |
