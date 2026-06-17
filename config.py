@@ -78,6 +78,18 @@ GREENHOUSE_BOARDS = {
     "qventus": "Qventus",
     "current": "Current Health",
     "letsgetchecked": "LetsGetChecked",
+    "garnerhealth": "Garner Health",
+    "bouldercare": "Boulder Care",
+    "outsetmedical": "Outset Medical",
+    "tebra": "Tebra",
+    "mantrahealth": "Mantra Health",
+    "align": "Align Technology",
+    "tomorrow": "Tomorrow Health",
+    "coverahealth": "Covera Health",
+    "1uphealth": "1upHealth",
+    "seer": "Seer",
+    "canopycare": "Canopy",
+    "rightway": "Rightway Healthcare",
     # Behavioral health & care delivery
     "modernhealth": "Modern Health",
     "alma": "Alma",
@@ -191,6 +203,11 @@ LEVER_BOARDS = {
   "h1": "H1",
   # Wellness & devices
   "whoop": "WHOOP",
+  # Digital health (additional)
+  "everlywell": "Everlywell",
+  "mantra": "Mantra Health",
+  "zushealth": "Zus Health",
+  "synthego": "Synthego",
 }
 
 # Ashby job board slugs → display name (jobs.ashbyhq.com/{slug}).
@@ -221,6 +238,15 @@ ASHBY_BOARDS = {
   "beam": "Beam Therapeutics",
   # Wellness & devices
   "whoop": "WHOOP",
+  # Digital health & behavioral health (additional)
+  "talkiatry": "Talkiatry",
+  "commure": "Commure",
+  "equip": "Equip",
+  "rula": "Rula",
+  "metriport": "Metriport",
+  "wheel": "Wheel",
+  "outset": "Outset Medical",
+  "icon": "ICON",
 }
 
 # Workable account subdomains → display name (apply.workable.com/{subdomain}).
@@ -299,6 +325,12 @@ WORKDAY_BOARDS = {
         "name": "IQVIA",
         "wd_server": "wd1",
         "site": "IQVIA",
+    },
+    # Large health systems (slow — 16k+ jobs; included for maximum coverage)
+    "cvshealth": {
+        "name": "CVS Health",
+        "wd_server": "wd1",
+        "site": "CVS_Health_Careers",
     },
 }
 
