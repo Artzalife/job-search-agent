@@ -199,6 +199,11 @@ CANDIDATES = {
     "masimo": "Masimo", "hillrom": "Hillrom", "baxter": "Baxter",
     "haemonetics": "Haemonetics", "nuvera": "Nuvera Biosciences",
     "guardian": "Guardant Health", "exact": "Exact Sciences",
+    "quince": "Quince Therapeutics", "verve": "Verve Therapeutics",
+    "primemedicine": "Prime Medicine", "legendcareers": "Legend Biotech",
+    "isomorphiclabs": "Isomorphic Labs", "xairatherapeutics": "Xaira Therapeutics",
+    "inceptive": "Inceptive", "integratedbiosciencesinc": "Integrated Biosciences",
+    "formbio": "Form Bio", "brightinsight": "BrightInsight",
 }
 
 WORKDAY_CANDIDATES = [

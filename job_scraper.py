@@ -74,6 +74,13 @@ CSV_COLUMNS = [
 ]
 
 REMOTE_KEYWORDS = ("remote", "work from home")
+NORTH_AMERICA_REMOTE_REGIONS = frozenset({
+    "us / canada",
+    "us/canada",
+    "usa / canada",
+    "united states / canada",
+    "north america",
+})
 MULTI_ARRANGEMENT_MARKERS = ("•", " / ", " or ", ";", " & ", " and ")
 INTERNATIONAL_MARKERS = (
     "ireland",
@@ -174,7 +181,8 @@ def classify_location(location: str) -> str:
 
     Rules (evaluated in order):
       Hybrid        — contains "hybrid" (checked before remote keywords)
-      Remote        — contains "remote" or "work from home"
+      Remote        — contains "remote" or "work from home", or a North
+                      America region label such as "US / Canada"
       Ambiguous     — contains "United States", US-based multi-location options,
                       empty/unclear text, or otherwise undetermined remote status
       International — clearly outside the United States
@@ -188,6 +196,10 @@ def classify_location(location: str) -> str:
 
     if "hybrid" in normalized:
         return "Hybrid"
+
+    compact = re.sub(r"\s+", " ", normalized)
+    if compact in NORTH_AMERICA_REMOTE_REGIONS:
+        return "Remote"
 
     if any(keyword in normalized for keyword in REMOTE_KEYWORDS):
         return "Remote"
@@ -1178,6 +1190,10 @@ def save_jobs(
     Only jobs confirmed open on this run are kept. Archives Markdown
     descriptions for newly discovered jobs. Removing a row from jobs.csv
     never deletes its archived description file under job_descriptions/.
+
+    Refuses to overwrite a non-empty CSV with zero rows, which usually
+    indicates a failed or incomplete scrape.
+
     Returns (newly_added_count, total_rows_written, descriptions_archived, removed_count).
     """
     existing = load_existing_jobs(csv_path)
@@ -1230,6 +1246,15 @@ def save_jobs(
             for key in CSV_COLUMNS
         }
 
+    if not pruned and existing:
+        print(
+            f"Safeguard: refusing to overwrite {csv_path} with an empty CSV "
+            f"({len(existing)} existing row(s) preserved). "
+            "This usually indicates a failed or incomplete scrape.",
+            file=sys.stderr,
+        )
+        return 0, len(existing), 0, 0
+
     removed = 0
     for apply_url, row in existing.items():
         if apply_url in pruned:
@@ -1274,6 +1299,16 @@ def main() -> None:
     )
     jobs, stats, live_apply_urls = collect_jobs()
     csv_path = Path(OUTPUT_CSV)
+    existing_count = len(load_existing_jobs(csv_path))
+    if stats["retrieved"] == 0 and existing_count:
+        print(
+            "Safeguard: scrape retrieved 0 jobs; keeping existing CSV unchanged.",
+            file=sys.stderr,
+        )
+        print_summary(stats, 0)
+        print(f"\nKept {existing_count} existing row(s) in {csv_path.resolve()}")
+        return
+
     added, total_written, archived, removed = save_jobs(csv_path, jobs, live_apply_urls)
 
     print_summary(stats, len(jobs))

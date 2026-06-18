@@ -120,6 +120,16 @@ GREENHOUSE_BOARDS = {
     "tesseratherapeutics": "Tessera Therapeutics",
     "florencehealthcare": "Florence Healthcare",
     "biofourmis": "Biofourmis",
+    # Additional probed biotech / medtech startups (Jun 2026)
+    "quince": "Quince Therapeutics",
+    "verve": "Verve Therapeutics",
+    "primemedicine": "Prime Medicine",
+    "legendcareers": "Legend Biotech",
+    "isomorphiclabs": "Isomorphic Labs",
+    "xairatherapeutics": "Xaira Therapeutics",
+    "inceptive": "Inceptive",
+    "integratedbiosciencesinc": "Integrated Biosciences",
+    "formbio": "Form Bio",
     # Behavioral health & care delivery (additional)
     "betterhelp": "BetterHelp",
     "talkspace": "Talkspace",
