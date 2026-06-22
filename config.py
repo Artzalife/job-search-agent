@@ -191,6 +191,17 @@ GREENHOUSE_BOARDS = {
     "masterclass": "MasterClass",
     "netlify": "Netlify",
     "calm": "Calm",
+    # Health / biotech / medtech SaaS
+    "definitivehc": "Definitive Healthcare",
+    "elationhealth": "Elation Health",
+    "qualio": "Qualio",
+    "dotmatics": "Dotmatics",
+    "iterativehealth": "Iterative Health",
+    "ketryx": "Ketryx",
+    "axuall": "Axuall",
+    "smarterdx": "SmarterDx",
+    "particlehealth": "Particle Health",
+    "medispend": "Medispend",
 }
 
 # Lever site slugs → display name (jobs.lever.co/{slug}).
@@ -218,6 +229,12 @@ LEVER_BOARDS = {
   "mantra": "Mantra Health",
   "zushealth": "Zus Health",
   "synthego": "Synthego",
+  # Health / biotech / medtech SaaS
+  "canvasmedical": "Canvas Medical",
+  "clarifyhealth": "Clarify Health",
+  "hint": "Hint Health",
+  "arcadia": "Arcadia",
+  "quartzy": "Quartzy",
 }
 
 # Ashby job board slugs → display name (jobs.ashbyhq.com/{slug}).
@@ -257,6 +274,11 @@ ASHBY_BOARDS = {
   "wheel": "Wheel",
   "outset": "Outset Medical",
   "icon": "ICON",
+  # Health / biotech / medtech SaaS
+  "openevidence": "OpenEvidence",
+  "regard": "Regard",
+  "healthgorilla": "Health Gorilla",
+  "medallion": "Medallion",
 }
 
 # Workable account subdomains → display name (apply.workable.com/{subdomain}).
@@ -268,6 +290,8 @@ WORKABLE_BOARDS = {
     "drug-hunter": "Drug Hunter",
     "cambridge-healthcare-research": "Cambridge Healthcare Research",
     "sokol-gxp-serivces": "SOKOL GxP Services",
+    # Health / biotech / medtech SaaS
+    "redox": "Redox",
 }
 
 # Workday career sites → display name and API routing metadata.
