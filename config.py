@@ -392,6 +392,11 @@ TITLE_INCLUDES = [
     "UI Designer",
     "UX/UI Designer",
     "UI/UX Designer",
+    "Experience Designer",
+    "Product Experience Designer",
+    "Senior Experience Designer",
+    "Service Designer",
+    "Senior Service Designer",
 ]
 
 # Job titles containing any of these phrases are excluded (case-insensitive).
