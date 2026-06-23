@@ -107,6 +107,16 @@ GREENHOUSE_BOARDS = {
     "patientpoint": "PatientPoint",
     "vitablehealth": "Vitable Health",
     "village": "VillageMD",
+    # Home-based care, aging & care navigation
+    "jukeboxhealth": "Jukebox Health",
+    "papa": "Papa",
+    "homeward": "Homeward",
+    "uniteus": "Unite Us",
+    "wellthy": "Wellthy",
+    "mavenclinic": "Maven",
+    "carrotfertility": "Carrot Fertility",
+    "welbehealth": "WelbeHealth",
+    "cleo": "Cleo",
     "thirtymadison": "Thirty Madison",
     "found": "Found",
     "candid": "Candid Health",
@@ -229,6 +239,8 @@ LEVER_BOARDS = {
   "mantra": "Mantra Health",
   "zushealth": "Zus Health",
   "synthego": "Synthego",
+  # Home-based care, aging & care navigation
+  "findhelp": "Findhelp",
   # Health / biotech / medtech SaaS
   "canvasmedical": "Canvas Medical",
   "clarifyhealth": "Clarify Health",
@@ -274,6 +286,10 @@ ASHBY_BOARDS = {
   "wheel": "Wheel",
   "outset": "Outset Medical",
   "icon": "ICON",
+  # Home-based care, aging & care navigation
+  "cityblock": "Cityblock Health",
+  "wellth": "Wellth",
+  "sondermind": "SonderMind",
   # Health / biotech / medtech SaaS
   "openevidence": "OpenEvidence",
   "regard": "Regard",
