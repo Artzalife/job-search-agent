@@ -26,7 +26,7 @@ Workday:
 We fetch every open job from each configured board, filter titles against the
 include/exclude rules in config.py, classify each location, keep only Remote
 roles, archive first-time job descriptions as Markdown, deduplicate by
-apply_url, and write results to jobs.csv.
+apply_url, and append new matches to jobs.csv (existing rows preserved by default).
 
 Run:
     python3 job_scraper.py
@@ -40,9 +40,11 @@ import html
 import json
 import re
 import sys
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 
@@ -56,11 +58,13 @@ from config import (
     LEVER_BOARDS,
     LOCATION_TYPES_INCLUDED,
     OUTPUT_CSV,
+    PRESERVE_EXISTING_JOBS,
     TITLE_EXCLUDES,
     TITLE_INCLUDES,
     WORKABLE_API_BASE,
     WORKABLE_BOARDS,
     WORKDAY_BOARDS,
+    WORKDAY_SEARCH_TEXT,
 )
 
 CSV_COLUMNS = [
@@ -504,8 +508,15 @@ def workday_apply_url(tenant: str, wd_server: str, site: str, external_path: str
     return f"https://{host}/{site}{external_path}"
 
 
-def fetch_workday_jobs(tenant: str, wd_server: str, site: str) -> list[dict]:
-    """Fetch all published job summaries for a Workday career site."""
+def fetch_workday_jobs(
+    tenant: str,
+    wd_server: str,
+    site: str,
+    search_text: str | None = None,
+) -> list[dict]:
+    """Fetch published job summaries for a Workday career site."""
+    if search_text is None:
+        search_text = WORKDAY_SEARCH_TEXT
     url = workday_jobs_url(tenant, wd_server, site)
     jobs: list[dict] = []
     offset = 0
@@ -515,7 +526,12 @@ def fetch_workday_jobs(tenant: str, wd_server: str, site: str) -> list[dict]:
     while True:
         payload = fetch_json_post(
             url,
-            {"appliedFacets": {}, "limit": limit, "offset": offset, "searchText": ""},
+            {
+                "appliedFacets": {},
+                "limit": limit,
+                "offset": offset,
+                "searchText": search_text,
+            },
         )
         batch = payload.get("jobPostings", [])
         if not batch:
@@ -836,6 +852,62 @@ def filter_job_posting(
     return True
 
 
+def _process_greenhouse_board(
+    board_token: str,
+    company_name: str,
+    today: str,
+) -> tuple[dict[str, int], dict[str, dict], set[str], str]:
+    """Fetch and filter jobs for a single Greenhouse board."""
+    stats = empty_stats()
+    board_jobs: dict[str, dict] = {}
+    board_live_urls: set[str] = set()
+
+    try:
+        jobs = fetch_greenhouse_jobs(board_token)
+    except urllib.error.HTTPError as exc:
+        print(
+            f"Skipping {company_name} [Greenhouse/{board_token}]: HTTP {exc.code}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+    except urllib.error.URLError as exc:
+        print(
+            f"Skipping {company_name} [Greenhouse/{board_token}]: {exc.reason}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+
+    board_written = 0
+    for job in jobs:
+        title = job.get("title", "").strip()
+        apply_url = job.get("absolute_url", "").strip()
+        if not title or not apply_url:
+            continue
+
+        board_live_urls.add(apply_url)
+        location = extract_greenhouse_location(job)
+        location_type = classify_location(location)
+        if not filter_job_posting(title, location, location_type, stats):
+            continue
+
+        board_jobs[apply_url] = make_job_row(
+            company_name,
+            title,
+            location,
+            location_type,
+            apply_url,
+            today,
+            extract_greenhouse_description(job),
+        )
+        board_written += 1
+
+    line = (
+        f"[Greenhouse] {company_name}: {len(jobs)} open jobs, "
+        f"{board_written} written after title/location filters"
+    )
+    return stats, board_jobs, board_live_urls, line
+
+
 def collect_greenhouse_jobs(
     today: str,
     collected: dict[str, dict],
@@ -843,47 +915,79 @@ def collect_greenhouse_jobs(
 ) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Greenhouse boards."""
     stats = empty_stats()
+    lock = threading.Lock()
 
-    for board_token, company_name in GREENHOUSE_BOARDS.items():
-        try:
-            jobs = fetch_greenhouse_jobs(board_token)
-        except urllib.error.HTTPError as exc:
-            print(f"Skipping {company_name} [Greenhouse/{board_token}]: HTTP {exc.code}", file=sys.stderr)
-            continue
-        except urllib.error.URLError as exc:
-            print(f"Skipping {company_name} [Greenhouse/{board_token}]: {exc.reason}", file=sys.stderr)
-            continue
-
-        board_written = 0
-        for job in jobs:
-            title = job.get("title", "").strip()
-            apply_url = job.get("absolute_url", "").strip()
-            if not title or not apply_url:
-                continue
-
-            live_apply_urls.add(apply_url)
-            location = extract_greenhouse_location(job)
-            location_type = classify_location(location)
-            if not filter_job_posting(title, location, location_type, stats):
-                continue
-
-            collected[apply_url] = make_job_row(
-                company_name,
-                title,
-                location,
-                location_type,
-                apply_url,
-                today,
-                extract_greenhouse_description(job),
-            )
-            board_written += 1
-
-        print(
-            f"[Greenhouse] {company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
-        )
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(_process_greenhouse_board, board_token, company_name, today)
+            for board_token, company_name in GREENHOUSE_BOARDS.items()
+        ]
+        for future in as_completed(futures):
+            board_stats, board_jobs, board_urls, line = future.result()
+            with lock:
+                merge_stats(stats, board_stats)
+                collected.update(board_jobs)
+                live_apply_urls.update(board_urls)
+            if line:
+                print(line)
 
     return stats
+
+
+def _process_lever_board(
+    site_slug: str,
+    company_name: str,
+    today: str,
+) -> tuple[dict[str, int], dict[str, dict], set[str], str]:
+    """Fetch and filter jobs for a single Lever board."""
+    stats = empty_stats()
+    board_jobs: dict[str, dict] = {}
+    board_live_urls: set[str] = set()
+
+    try:
+        jobs = fetch_lever_jobs(site_slug)
+    except urllib.error.HTTPError as exc:
+        print(
+            f"Skipping {company_name} [Lever/{site_slug}]: HTTP {exc.code}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+    except urllib.error.URLError as exc:
+        print(
+            f"Skipping {company_name} [Lever/{site_slug}]: {exc.reason}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+
+    board_written = 0
+    for job in jobs:
+        title = job.get("text", "").strip()
+        apply_url = (job.get("applyUrl") or job.get("hostedUrl") or "").strip()
+        if not title or not apply_url:
+            continue
+
+        board_live_urls.add(apply_url)
+        location = extract_lever_location(job)
+        location_type = classify_lever_location(job, location)
+        if not filter_job_posting(title, location, location_type, stats):
+            continue
+
+        board_jobs[apply_url] = make_job_row(
+            company_name,
+            title,
+            location,
+            location_type,
+            apply_url,
+            today,
+            extract_lever_description(job),
+        )
+        board_written += 1
+
+    line = (
+        f"[Lever] {company_name}: {len(jobs)} open jobs, "
+        f"{board_written} written after title/location filters"
+    )
+    return stats, board_jobs, board_live_urls, line
 
 
 def collect_lever_jobs(
@@ -893,47 +997,79 @@ def collect_lever_jobs(
 ) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Lever boards."""
     stats = empty_stats()
+    lock = threading.Lock()
 
-    for site_slug, company_name in LEVER_BOARDS.items():
-        try:
-            jobs = fetch_lever_jobs(site_slug)
-        except urllib.error.HTTPError as exc:
-            print(f"Skipping {company_name} [Lever/{site_slug}]: HTTP {exc.code}", file=sys.stderr)
-            continue
-        except urllib.error.URLError as exc:
-            print(f"Skipping {company_name} [Lever/{site_slug}]: {exc.reason}", file=sys.stderr)
-            continue
-
-        board_written = 0
-        for job in jobs:
-            title = job.get("text", "").strip()
-            apply_url = (job.get("applyUrl") or job.get("hostedUrl") or "").strip()
-            if not title or not apply_url:
-                continue
-
-            live_apply_urls.add(apply_url)
-            location = extract_lever_location(job)
-            location_type = classify_lever_location(job, location)
-            if not filter_job_posting(title, location, location_type, stats):
-                continue
-
-            collected[apply_url] = make_job_row(
-                company_name,
-                title,
-                location,
-                location_type,
-                apply_url,
-                today,
-                extract_lever_description(job),
-            )
-            board_written += 1
-
-        print(
-            f"[Lever] {company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
-        )
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(_process_lever_board, site_slug, company_name, today)
+            for site_slug, company_name in LEVER_BOARDS.items()
+        ]
+        for future in as_completed(futures):
+            board_stats, board_jobs, board_urls, line = future.result()
+            with lock:
+                merge_stats(stats, board_stats)
+                collected.update(board_jobs)
+                live_apply_urls.update(board_urls)
+            if line:
+                print(line)
 
     return stats
+
+
+def _process_ashby_board(
+    board_slug: str,
+    company_name: str,
+    today: str,
+) -> tuple[dict[str, int], dict[str, dict], set[str], str]:
+    """Fetch and filter jobs for a single Ashby board."""
+    stats = empty_stats()
+    board_jobs: dict[str, dict] = {}
+    board_live_urls: set[str] = set()
+
+    try:
+        jobs = fetch_ashby_jobs(board_slug)
+    except urllib.error.HTTPError as exc:
+        print(
+            f"Skipping {company_name} [Ashby/{board_slug}]: HTTP {exc.code}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+    except urllib.error.URLError as exc:
+        print(
+            f"Skipping {company_name} [Ashby/{board_slug}]: {exc.reason}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+
+    board_written = 0
+    for job in jobs:
+        title = job.get("title", "").strip()
+        apply_url = (job.get("applyUrl") or job.get("jobUrl") or "").strip()
+        if not title or not apply_url:
+            continue
+
+        board_live_urls.add(apply_url)
+        location = extract_ashby_location(job)
+        location_type = classify_ashby_location(job, location)
+        if not filter_job_posting(title, location, location_type, stats):
+            continue
+
+        board_jobs[apply_url] = make_job_row(
+            company_name,
+            title,
+            location,
+            location_type,
+            apply_url,
+            today,
+            extract_ashby_description(job),
+        )
+        board_written += 1
+
+    line = (
+        f"[Ashby] {company_name}: {len(jobs)} open jobs, "
+        f"{board_written} written after title/location filters"
+    )
+    return stats, board_jobs, board_live_urls, line
 
 
 def collect_ashby_jobs(
@@ -943,47 +1079,80 @@ def collect_ashby_jobs(
 ) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Ashby boards."""
     stats = empty_stats()
+    lock = threading.Lock()
 
-    for board_slug, company_name in ASHBY_BOARDS.items():
-        try:
-            jobs = fetch_ashby_jobs(board_slug)
-        except urllib.error.HTTPError as exc:
-            print(f"Skipping {company_name} [Ashby/{board_slug}]: HTTP {exc.code}", file=sys.stderr)
-            continue
-        except urllib.error.URLError as exc:
-            print(f"Skipping {company_name} [Ashby/{board_slug}]: {exc.reason}", file=sys.stderr)
-            continue
-
-        board_written = 0
-        for job in jobs:
-            title = job.get("title", "").strip()
-            apply_url = (job.get("applyUrl") or job.get("jobUrl") or "").strip()
-            if not title or not apply_url:
-                continue
-
-            live_apply_urls.add(apply_url)
-            location = extract_ashby_location(job)
-            location_type = classify_ashby_location(job, location)
-            if not filter_job_posting(title, location, location_type, stats):
-                continue
-
-            collected[apply_url] = make_job_row(
-                company_name,
-                title,
-                location,
-                location_type,
-                apply_url,
-                today,
-                extract_ashby_description(job),
-            )
-            board_written += 1
-
-        print(
-            f"[Ashby] {company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
-        )
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(_process_ashby_board, board_slug, company_name, today)
+            for board_slug, company_name in ASHBY_BOARDS.items()
+        ]
+        for future in as_completed(futures):
+            board_stats, board_jobs, board_urls, line = future.result()
+            with lock:
+                merge_stats(stats, board_stats)
+                collected.update(board_jobs)
+                live_apply_urls.update(board_urls)
+            if line:
+                print(line)
 
     return stats
+
+
+def _process_workable_board(
+    subdomain: str,
+    company_name: str,
+    today: str,
+) -> tuple[dict[str, int], dict[str, dict], set[str], str]:
+    """Fetch and filter jobs for a single Workable board."""
+    stats = empty_stats()
+    board_jobs: dict[str, dict] = {}
+    board_live_urls: set[str] = set()
+
+    try:
+        jobs = fetch_workable_jobs(subdomain)
+    except urllib.error.HTTPError as exc:
+        print(
+            f"Skipping {company_name} [Workable/{subdomain}]: HTTP {exc.code}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+    except urllib.error.URLError as exc:
+        print(
+            f"Skipping {company_name} [Workable/{subdomain}]: {exc.reason}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+
+    board_written = 0
+    for job in jobs:
+        title = job.get("title", "").strip()
+        apply_url = (job.get("application_url") or job.get("url") or "").strip()
+        if not title or not apply_url:
+            continue
+
+        board_live_urls.add(apply_url)
+        location = extract_workable_location(job)
+        location_type = classify_workable_location(job, location)
+        location = ensure_remote_location_label(location, location_type)
+        if not filter_job_posting(title, location, location_type, stats):
+            continue
+
+        board_jobs[apply_url] = make_job_row(
+            company_name,
+            title,
+            location,
+            location_type,
+            apply_url,
+            today,
+            extract_workable_description(job),
+        )
+        board_written += 1
+
+    line = (
+        f"[Workable] {company_name}: {len(jobs)} open jobs, "
+        f"{board_written} written after title/location filters"
+    )
+    return stats, board_jobs, board_live_urls, line
 
 
 def collect_workable_jobs(
@@ -993,54 +1162,111 @@ def collect_workable_jobs(
 ) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Workable boards."""
     stats = empty_stats()
+    lock = threading.Lock()
 
-    for subdomain, company_name in WORKABLE_BOARDS.items():
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(_process_workable_board, subdomain, company_name, today)
+            for subdomain, company_name in WORKABLE_BOARDS.items()
+        ]
+        for future in as_completed(futures):
+            board_stats, board_jobs, board_urls, line = future.result()
+            with lock:
+                merge_stats(stats, board_stats)
+                collected.update(board_jobs)
+                live_apply_urls.update(board_urls)
+            if line:
+                print(line)
+
+    return stats
+
+
+def _process_workday_board(
+    tenant: str,
+    board: dict,
+    today: str,
+) -> tuple[dict[str, int], dict[str, dict], set[str], str]:
+    """Fetch and filter jobs for a single Workday career site."""
+    stats = empty_stats()
+    board_jobs: dict[str, dict] = {}
+    board_live_urls: set[str] = set()
+    company_name = board["name"]
+    wd_server = board["wd_server"]
+    site = board["site"]
+
+    try:
+        jobs = fetch_workday_jobs(tenant, wd_server, site)
+    except urllib.error.HTTPError as exc:
+        print(
+            f"Skipping {company_name} [Workday/{tenant}/{site}]: HTTP {exc.code}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+    except urllib.error.URLError as exc:
+        print(
+            f"Skipping {company_name} [Workday/{tenant}/{site}]: {exc.reason}",
+            file=sys.stderr,
+        )
+        return stats, board_jobs, board_live_urls, ""
+
+    board_written = 0
+    for job in jobs:
+        title = job.get("title", "").strip()
+        external_path = (job.get("externalPath") or "").strip()
+        if not title or not external_path:
+            continue
+
+        board_live_urls.add(workday_apply_url(tenant, wd_server, site, external_path))
+        stats["retrieved"] += 1
+        if not title_matches(title):
+            stats["excluded_by_title"] += 1
+            continue
+
+        stats["matching_title"] += 1
+
         try:
-            jobs = fetch_workable_jobs(subdomain)
+            job_detail = fetch_workday_job_detail(tenant, wd_server, site, external_path)
         except urllib.error.HTTPError as exc:
             print(
-                f"Skipping {company_name} [Workable/{subdomain}]: HTTP {exc.code}",
+                f"Skipping {company_name} job '{title}': detail HTTP {exc.code}",
                 file=sys.stderr,
             )
             continue
         except urllib.error.URLError as exc:
             print(
-                f"Skipping {company_name} [Workable/{subdomain}]: {exc.reason}",
+                f"Skipping {company_name} job '{title}': detail {exc.reason}",
                 file=sys.stderr,
             )
             continue
 
-        board_written = 0
-        for job in jobs:
-            title = job.get("title", "").strip()
-            apply_url = (job.get("application_url") or job.get("url") or "").strip()
-            if not title or not apply_url:
-                continue
+        apply_url = (job_detail.get("externalUrl") or "").strip()
+        if not apply_url:
+            continue
 
-            live_apply_urls.add(apply_url)
-            location = extract_workable_location(job)
-            location_type = classify_workable_location(job, location)
-            location = ensure_remote_location_label(location, location_type)
-            if not filter_job_posting(title, location, location_type, stats):
-                continue
+        board_live_urls.add(apply_url)
+        location = extract_workday_location(job, job_detail)
+        location_type = classify_workday_location(job_detail, location)
+        location = ensure_remote_location_label(location, location_type)
+        if not location_is_included(location_type):
+            stats["excluded_by_location"] += 1
+            continue
 
-            collected[apply_url] = make_job_row(
-                company_name,
-                title,
-                location,
-                location_type,
-                apply_url,
-                today,
-                extract_workable_description(job),
-            )
-            board_written += 1
-
-        print(
-            f"[Workable] {company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
+        board_jobs[apply_url] = make_job_row(
+            company_name,
+            title,
+            location,
+            location_type,
+            apply_url,
+            today,
+            extract_workday_description(job_detail),
         )
+        board_written += 1
 
-    return stats
+    line = (
+        f"[Workday] {company_name}: {len(jobs)} open jobs, "
+        f"{board_written} written after title/location filters"
+    )
+    return stats, board_jobs, board_live_urls, line
 
 
 def collect_workday_jobs(
@@ -1050,84 +1276,21 @@ def collect_workday_jobs(
 ) -> dict[str, int]:
     """Fetch, filter, and normalize jobs from configured Workday career sites."""
     stats = empty_stats()
+    lock = threading.Lock()
 
-    for tenant, board in WORKDAY_BOARDS.items():
-        company_name = board["name"]
-        wd_server = board["wd_server"]
-        site = board["site"]
-
-        try:
-            jobs = fetch_workday_jobs(tenant, wd_server, site)
-        except urllib.error.HTTPError as exc:
-            print(
-                f"Skipping {company_name} [Workday/{tenant}/{site}]: HTTP {exc.code}",
-                file=sys.stderr,
-            )
-            continue
-        except urllib.error.URLError as exc:
-            print(
-                f"Skipping {company_name} [Workday/{tenant}/{site}]: {exc.reason}",
-                file=sys.stderr,
-            )
-            continue
-
-        board_written = 0
-        for job in jobs:
-            title = job.get("title", "").strip()
-            external_path = (job.get("externalPath") or "").strip()
-            if not title or not external_path:
-                continue
-
-            live_apply_urls.add(workday_apply_url(tenant, wd_server, site, external_path))
-            stats["retrieved"] += 1
-            if not title_matches(title):
-                stats["excluded_by_title"] += 1
-                continue
-
-            stats["matching_title"] += 1
-
-            try:
-                job_detail = fetch_workday_job_detail(tenant, wd_server, site, external_path)
-            except urllib.error.HTTPError as exc:
-                print(
-                    f"Skipping {company_name} job '{title}': detail HTTP {exc.code}",
-                    file=sys.stderr,
-                )
-                continue
-            except urllib.error.URLError as exc:
-                print(
-                    f"Skipping {company_name} job '{title}': detail {exc.reason}",
-                    file=sys.stderr,
-                )
-                continue
-
-            apply_url = (job_detail.get("externalUrl") or "").strip()
-            if not apply_url:
-                continue
-
-            live_apply_urls.add(apply_url)
-            location = extract_workday_location(job, job_detail)
-            location_type = classify_workday_location(job_detail, location)
-            location = ensure_remote_location_label(location, location_type)
-            if not location_is_included(location_type):
-                stats["excluded_by_location"] += 1
-                continue
-
-            collected[apply_url] = make_job_row(
-                company_name,
-                title,
-                location,
-                location_type,
-                apply_url,
-                today,
-                extract_workday_description(job_detail),
-            )
-            board_written += 1
-
-        print(
-            f"[Workday] {company_name}: {len(jobs)} open jobs, "
-            f"{board_written} written after title/location filters"
-        )
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(_process_workday_board, tenant, board, today)
+            for tenant, board in WORKDAY_BOARDS.items()
+        ]
+        for future in as_completed(futures):
+            board_stats, board_jobs, board_urls, line = future.result()
+            with lock:
+                merge_stats(stats, board_stats)
+                collected.update(board_jobs)
+                live_apply_urls.update(board_urls)
+            if line:
+                print(line)
 
     return stats
 
@@ -1179,20 +1342,84 @@ def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
     return location_is_included(location_type), location_type
 
 
-def save_jobs(
+def _csv_sort_key(row: dict) -> tuple[str, str, str]:
+    """Sort rows newest first by date_found, then company, then title."""
+    return (row.get("date_found", ""), row.get("company", ""), row.get("title", ""))
+
+
+def _save_jobs_additive(
+    csv_path: Path,
+    new_jobs: list[dict],
+) -> tuple[int, int, int]:
+    """
+    Append-only merge: preserve all existing rows, add new apply_urls only.
+
+    Returns (newly_added_count, total_rows_written, descriptions_archived).
+    """
+    existing = load_existing_jobs(csv_path)
+    merged = dict(existing)
+    descriptions_root = Path(DESCRIPTIONS_DIR)
+    existing_paths_by_url = {
+        apply_url: row.get("description_file", "").strip()
+        for apply_url, row in existing.items()
+        if row.get("description_file", "").strip()
+    }
+    archived = 0
+
+    for job in new_jobs:
+        apply_url = job["apply_url"]
+        if apply_url in merged:
+            continue
+
+        job_row = {
+            "company": job["company"],
+            "title": job["title"],
+            "location": job["location"],
+            "location_type": job["location_type"],
+            "apply_url": apply_url,
+            "date_found": job["date_found"],
+            "description_file": "",
+            "description": job.get("description", ""),
+        }
+
+        description_file, created = archive_job_description(
+            job_row,
+            descriptions_root,
+            existing_paths_by_url,
+        )
+        job_row["description_file"] = description_file
+        existing_paths_by_url[apply_url] = description_file
+        if created:
+            archived += 1
+
+        merged[apply_url] = {key: job_row[key] for key in CSV_COLUMNS}
+
+    if not merged and existing:
+        print(
+            f"Safeguard: refusing to overwrite {csv_path} with an empty CSV "
+            f"({len(existing)} existing row(s) preserved). "
+            "This usually indicates a failed or incomplete scrape.",
+            file=sys.stderr,
+        )
+        return 0, len(existing), 0
+
+    added = sum(1 for apply_url in merged if apply_url not in existing)
+    rows = sorted(merged.values(), key=_csv_sort_key, reverse=True)
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return added, len(rows), archived
+
+
+def _save_jobs_sync(
     csv_path: Path,
     new_jobs: list[dict],
     live_apply_urls: set[str],
 ) -> tuple[int, int, int, int]:
     """
-    Merge new jobs into the CSV, deduplicating by apply_url.
-
-    Only jobs confirmed open on this run are kept. Archives Markdown
-    descriptions for newly discovered jobs. Removing a row from jobs.csv
-    never deletes its archived description file under job_descriptions/.
-
-    Refuses to overwrite a non-empty CSV with zero rows, which usually
-    indicates a failed or incomplete scrape.
+    Replace merge: keep only jobs from the latest scrape (legacy behavior).
 
     Returns (newly_added_count, total_rows_written, descriptions_archived, removed_count).
     """
@@ -1241,10 +1468,7 @@ def save_jobs(
             if created:
                 archived += 1
 
-        pruned[apply_url] = {
-            key: job_row[key]
-            for key in CSV_COLUMNS
-        }
+        pruned[apply_url] = {key: job_row[key] for key in CSV_COLUMNS}
 
     if not pruned and existing:
         print(
@@ -1282,6 +1506,31 @@ def save_jobs(
     return added, len(rows), archived, removed
 
 
+def save_jobs(
+    csv_path: Path,
+    new_jobs: list[dict],
+    live_apply_urls: set[str] | None = None,
+) -> tuple[int, int, int, int]:
+    """
+    Merge new jobs into the CSV, deduplicating by apply_url.
+
+    When PRESERVE_EXISTING_JOBS is True (default), existing rows are kept and
+    only new apply_urls are appended. Archives Markdown descriptions for newly
+    discovered jobs. Removing a row from jobs.csv never deletes its archived
+    description file under job_descriptions/.
+
+    Refuses to overwrite a non-empty CSV with zero rows, which usually
+    indicates a failed or incomplete scrape.
+
+    Returns (newly_added_count, total_rows_written, descriptions_archived, removed_count).
+    """
+    if PRESERVE_EXISTING_JOBS:
+        added, total, archived = _save_jobs_additive(csv_path, new_jobs)
+        return added, total, archived, 0
+
+    return _save_jobs_sync(csv_path, new_jobs, live_apply_urls or set())
+
+
 def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
     """Print end-of-run filtering summary."""
     print("\nSummary")
@@ -1313,7 +1562,16 @@ def main() -> None:
 
     print_summary(stats, len(jobs))
     print(f"\nSaved to {csv_path.resolve()}")
-    print(f"Added {added} new row(s); removed {removed} inactive/stale row(s); total rows in CSV: {total_written}")
+    if PRESERVE_EXISTING_JOBS:
+        print(
+            f"Added {added} new row(s); preserved existing rows; "
+            f"total rows in CSV: {total_written}"
+        )
+    else:
+        print(
+            f"Added {added} new row(s); removed {removed} inactive/stale row(s); "
+            f"total rows in CSV: {total_written}"
+        )
     print(f"Archived {archived} new job description(s) to {Path(DESCRIPTIONS_DIR).resolve()}")
 
 

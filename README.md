@@ -16,7 +16,11 @@ GET https://www.workable.com/api/accounts/{subdomain}?details=true
 POST https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
 ```
 
-Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lead, intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`. On each run, only jobs still listed on their ATS board are kept; closed or stale postings are removed from `jobs.csv`.
+Jobs are filtered to product design / UX titles, excluding Staff, Principal, Lead, intern, junior, manager, and director roles. Only **remote** postings are kept — on-site and hybrid-only roles are excluded. Duplicates are avoided by tracking each job's `apply_url`.
+
+By default (`PRESERVE_EXISTING_JOBS = True`), each run **adds** newly discovered jobs to `jobs.csv` without removing existing rows. Closed or stale postings stay in the CSV until you remove them manually. Set `PRESERVE_EXISTING_JOBS = False` in `config.py` to restore the previous sync-and-prune behavior.
+
+Board fetches run in parallel within each ATS type. Workday boards use `WORKDAY_SEARCH_TEXT` (default `"product designer"`) to narrow API results before filtering.
 
 **Coverage note:** None of these ATS platforms expose a public API to list every company board. The scraper only searches the board slugs configured in `config.py`. Add more slugs there to expand coverage.
 
@@ -93,8 +97,10 @@ Archive rules:
 
 - Description files are created only on first discovery
 - Existing description files are never overwritten on later runs
-- Archived descriptions are **never deleted**, even when a posting closes and is removed from `jobs.csv`
+- Archived descriptions are **never deleted**, even when a posting closes or is removed from `jobs.csv`
 - Duplicate jobs (same `apply_url`) share a single description file
+
+When `PRESERVE_EXISTING_JOBS` is `True` (default), rows are never auto-removed from `jobs.csv` — only new `apply_url` values are appended. Existing row metadata (`date_found`, title, location, etc.) is preserved from the first snapshot.
 
 The archive uses only the Python standard library and relative paths, so it works in local runs, `launchd` schedules, and GitHub Actions.
 
@@ -110,8 +116,10 @@ The archive uses only the Python standard library and relative paths, so it work
 | `TITLE_INCLUDES` | Title must contain one of these phrases |
 | `TITLE_EXCLUDES` | Title must not contain these phrases (manager, intern, etc.) |
 | `LOCATION_TYPES_INCLUDED` | Only jobs with these location types are saved (default: `Remote` only) |
+| `PRESERVE_EXISTING_JOBS` | When `True`, only append new jobs; never auto-remove existing rows (default: `True`) |
+| `WORKDAY_SEARCH_TEXT` | Free-text filter for Workday job search API (default: `"product designer"`) |
 
-Re-running the script merges new jobs into the existing CSV without duplicating `apply_url` values. Postings that are no longer open on their ATS board are dropped automatically.
+Re-running the script merges new jobs into the existing CSV without duplicating `apply_url` values. With the default additive mode, existing rows are preserved across runs.
 
 ## Automatic weekday runs (macOS)
 

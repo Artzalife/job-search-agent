@@ -416,6 +416,14 @@ TITLE_EXCLUDES = [
 # Only jobs classified as fully remote are written to the CSV.
 LOCATION_TYPES_INCLUDED = ("Remote",)
 
+# When True, jobs.csv only grows: existing rows are preserved across runs and new
+# apply_urls are appended. Closed or stale postings are not auto-removed.
+PRESERVE_EXISTING_JOBS = True
+
+# Free-text filter passed to Workday job search API (searchText). Narrows large
+# boards before title/location filtering. Set to "" to fetch all open postings.
+WORKDAY_SEARCH_TEXT = "product designer"
+
 # Output file for collected jobs.
 OUTPUT_CSV = "jobs.csv"
 
