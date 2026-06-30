@@ -68,14 +68,42 @@ from config import (
 )
 
 CSV_COLUMNS = [
-    "company",
-    "title",
-    "location",
-    "location_type",
-    "apply_url",
-    "date_found",
-    "description_file",
+    "Company",
+    "Title",
+    "Apply URL",
+    "Experience",
+    "Category",
+    "Location",
+    "Location Type",
+    "Date Found",
+    "Description File",
 ]
+
+_LEGACY_CSV_ALIASES = {
+    "company": "Company",
+    "title": "Title",
+    "apply_url": "Apply URL",
+    "experience": "Experience",
+    "category": "Category",
+    "location": "Location",
+    "location_type": "Location Type",
+    "date_found": "Date Found",
+    "description_file": "Description File",
+}
+
+
+def normalize_csv_row(row: dict) -> dict:
+    """Map legacy column names and ensure every output column is present."""
+    normalized: dict[str, str] = {}
+    for key, value in row.items():
+        canonical = _LEGACY_CSV_ALIASES.get(key, key)
+        if value is None:
+            normalized[canonical] = ""
+        else:
+            normalized[canonical] = str(value)
+    for column in CSV_COLUMNS:
+        normalized.setdefault(column, "")
+    return {column: normalized[column] for column in CSV_COLUMNS}
 
 REMOTE_KEYWORDS = ("remote", "work from home")
 NORTH_AMERICA_REMOTE_REGIONS = frozenset({
@@ -721,15 +749,15 @@ def archive_job_description(
     files are never overwritten or deleted, including when a posting later
     closes and is removed from jobs.csv.
     """
-    apply_url = job["apply_url"]
+    apply_url = job["Apply URL"]
     if apply_url in existing_paths_by_url:
         return existing_paths_by_url[apply_url], False
 
-    captured_on = date.fromisoformat(job["date_found"])
+    captured_on = date.fromisoformat(job["Date Found"])
     year_dir = descriptions_root / str(captured_on.year)
     year_dir.mkdir(parents=True, exist_ok=True)
 
-    filename = description_filename(job["company"], job["title"], captured_on)
+    filename = description_filename(job["Company"], job["Title"], captured_on)
     relative_path = Path(DESCRIPTIONS_DIR) / str(captured_on.year) / filename
     absolute_path = descriptions_root / str(captured_on.year) / filename
 
@@ -744,11 +772,11 @@ def archive_job_description(
         return str(relative_path).replace("\\", "/"), False
 
     markdown = description_markdown(
-        title=job["title"],
-        company=job["company"],
-        location=job["location"],
+        title=job["Title"],
+        company=job["Company"],
+        location=job["Location"],
         apply_url=apply_url,
-        captured_on=job["date_found"],
+        captured_on=job["Date Found"],
         description=job.get("description", ""),
     )
     absolute_path.write_text(markdown, encoding="utf-8")
@@ -820,14 +848,16 @@ def make_job_row(
 ) -> dict:
     """Build a normalized CSV row for a qualifying job posting."""
     return {
-        "company": company_name,
-        "title": title,
-        "location": location,
-        "location_type": location_type,
-        "apply_url": apply_url,
-        "date_found": today,
+        "Company": company_name,
+        "Title": title,
+        "Apply URL": apply_url,
+        "Experience": "",
+        "Category": "",
+        "Location": location,
+        "Location Type": location_type,
+        "Date Found": today,
         "description": description,
-        "description_file": "",
+        "Description File": "",
     }
 
 
@@ -1322,11 +1352,13 @@ def load_existing_jobs(csv_path: Path) -> dict[str, dict]:
 
     with csv_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        return {
-            row["apply_url"]: row
-            for row in reader
-            if row.get("apply_url")
-        }
+        existing: dict[str, dict] = {}
+        for row in reader:
+            normalized = normalize_csv_row(row)
+            apply_url = normalized["Apply URL"].strip()
+            if apply_url:
+                existing[apply_url] = normalized
+        return existing
 
 
 def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
@@ -1344,7 +1376,11 @@ def job_qualifies(title: str, location: str) -> tuple[bool, str | None]:
 
 def _csv_sort_key(row: dict) -> tuple[str, str, str]:
     """Sort rows newest first by date_found, then company, then title."""
-    return (row.get("date_found", ""), row.get("company", ""), row.get("title", ""))
+    return (
+        row.get("Date Found", ""),
+        row.get("Company", ""),
+        row.get("Title", ""),
+    )
 
 
 def _save_jobs_additive(
@@ -1360,34 +1396,36 @@ def _save_jobs_additive(
     merged = dict(existing)
     descriptions_root = Path(DESCRIPTIONS_DIR)
     existing_paths_by_url = {
-        apply_url: row.get("description_file", "").strip()
+        apply_url: row.get("Description File", "").strip()
         for apply_url, row in existing.items()
-        if row.get("description_file", "").strip()
+        if row.get("Description File", "").strip()
     }
     archived = 0
 
     for job in new_jobs:
-        apply_url = job["apply_url"]
+        apply_url = job["Apply URL"]
         if apply_url in merged:
             continue
 
-        job_row = {
-            "company": job["company"],
-            "title": job["title"],
-            "location": job["location"],
-            "location_type": job["location_type"],
-            "apply_url": apply_url,
-            "date_found": job["date_found"],
-            "description_file": "",
+        job_row = normalize_csv_row({
+            "Company": job["Company"],
+            "Title": job["Title"],
+            "Apply URL": apply_url,
+            "Experience": job.get("Experience", ""),
+            "Category": job.get("Category", ""),
+            "Location": job["Location"],
+            "Location Type": job["Location Type"],
+            "Date Found": job["Date Found"],
+            "Description File": "",
             "description": job.get("description", ""),
-        }
+        })
 
         description_file, created = archive_job_description(
             job_row,
             descriptions_root,
             existing_paths_by_url,
         )
-        job_row["description_file"] = description_file
+        job_row["Description File"] = description_file
         existing_paths_by_url[apply_url] = description_file
         if created:
             archived += 1
@@ -1427,43 +1465,45 @@ def _save_jobs_sync(
     pruned: dict[str, dict] = {}
     descriptions_root = Path(DESCRIPTIONS_DIR)
     existing_paths_by_url = {
-        apply_url: row.get("description_file", "").strip()
+        apply_url: row.get("Description File", "").strip()
         for apply_url, row in existing.items()
-        if row.get("description_file", "").strip()
+        if row.get("Description File", "").strip()
     }
     archived = 0
 
     for job in new_jobs:
-        apply_url = job["apply_url"]
+        apply_url = job["Apply URL"]
         if apply_url not in live_apply_urls:
-            active = is_posting_active(apply_url, job.get("company", ""))
+            active = is_posting_active(apply_url, job.get("Company", ""))
             if active is False:
                 print(
-                    f"Skipping closed posting: {job.get('company', '')} — {job.get('title', '')}",
+                    f"Skipping closed posting: {job.get('Company', '')} — {job.get('Title', '')}",
                     file=sys.stderr,
                 )
                 continue
 
         merged = existing.get(apply_url, {})
-        job_row = {
-            "company": job["company"],
-            "title": job["title"],
-            "location": job["location"],
-            "location_type": job["location_type"],
-            "apply_url": apply_url,
-            "date_found": merged.get("date_found", job["date_found"]),
-            "description_file": merged.get("description_file", "").strip(),
+        job_row = normalize_csv_row({
+            "Company": job["Company"],
+            "Title": job["Title"],
+            "Apply URL": apply_url,
+            "Experience": merged.get("Experience", job.get("Experience", "")),
+            "Category": merged.get("Category", job.get("Category", "")),
+            "Location": job["Location"],
+            "Location Type": job["Location Type"],
+            "Date Found": merged.get("Date Found", job["Date Found"]),
+            "Description File": merged.get("Description File", "").strip(),
             "description": job.get("description", ""),
-        }
+        })
 
-        needs_archive = not job_row["description_file"]
+        needs_archive = not job_row["Description File"]
         if needs_archive:
             description_file, created = archive_job_description(
                 job_row,
                 descriptions_root,
                 existing_paths_by_url,
             )
-            job_row["description_file"] = description_file
+            job_row["Description File"] = description_file
             existing_paths_by_url[apply_url] = description_file
             if created:
                 archived += 1
@@ -1486,18 +1526,18 @@ def _save_jobs_sync(
         removed += 1
         if apply_url in live_apply_urls:
             reason = "no longer matches filters"
-        elif is_posting_active(apply_url, row.get("company", "")) is False:
+        elif is_posting_active(apply_url, row.get("Company", "")) is False:
             reason = "posting closed"
         else:
             reason = "not found on latest scrape"
         print(
-            f"Removing ({reason}): {row.get('company', '')} — {row.get('title', '')}"
+            f"Removing ({reason}): {row.get('Company', '')} — {row.get('Title', '')}"
             f" (description archive kept)",
             file=sys.stderr,
         )
 
     added = sum(1 for apply_url in pruned if apply_url not in existing)
-    rows = sorted(pruned.values(), key=lambda row: (row["company"], row["title"]))
+    rows = sorted(pruned.values(), key=lambda row: (row["Company"], row["Title"]))
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
         writer.writeheader()

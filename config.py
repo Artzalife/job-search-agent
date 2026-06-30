@@ -9,380 +9,101 @@ Supported platforms
 - Workable:   https://www.workable.com/api/accounts/{subdomain}?details=true
 - Workday:    POST https://{tenant}.{wd_server}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
 
-Each company board is identified by a slug from its public careers URL.
-Add or remove entries below to control which companies are searched.
+Company boards are defined in data/companies.csv. Edit that file to add or
+remove companies; this module loads enabled rows into the board dicts below.
 """
 
-# Map of board_token → display name written to jobs.csv.
-#
-# Find a company's token from its Greenhouse careers URL:
-#   https://boards.greenhouse.io/{board_token}
-# Boards that return HTTP 404 have no public API feed (custom ATS, private board,
-# or a non-Greenhouse-hosted careers page) — remove or replace those entries.
-GREENHOUSE_BOARDS = {
-    # General tech (original boards)
-    "stripe": "Stripe",
-    "figma": "Figma",
-    "anthropic": "Anthropic",
-    "airtable": "Airtable",
-    "vercel": "Vercel",
-    "brex": "Brex",
-    "dropbox": "Dropbox",
-    "coinbase": "Coinbase",
-    "asana": "Asana",
-    "webflow": "Webflow",
-    # Digital health & healthtech
-    "oscar": "Oscar Health",
-    "komodohealth": "Komodo Health",
-    "flatironhealth": "Flatiron Health",
-    "omadahealth": "Omada Health",
-    "pomelocare": "Pomelo Care",
-    "zocdoc": "Zocdoc",
-    "doximity": "Doximity",
-    "collectivehealth": "Collective Health",
-    "cloverhealth": "Clover Health",
-    "amwell": "Amwell",
-    "transcarent": "Transcarent",
-    "khealthcareers": "K Health",
-    "courierhealth": "Courier Health",
-    "waymark": "Waymark",
-    "healthverity": "HealthVerity",
-    "rightwayhealthcare": "Rightway Healthcare",
-    "sidecarhealth": "Sidecar Health",
-    "strivehealth": "Strive Health",
-    "galileo": "Galileo",
-    "healthjoy": "HealthJoy",
-    # Diagnostics, biotech & medtech
-    "natera": "Natera",
-    "veracyte": "Veracyte",
-    "10xgenomics": "10x Genomics",
-    "twistbioscience": "Twist Bioscience",
-    "freenome": "Freenome",
-    "billiontoone": "BillionToOne",
-    "butterflynetwork": "Butterfly Network",
-    "recursionpharmaceuticals": "Recursion",
-    "pathai": "PathAI",
-    "ginkgobioworks": "Ginkgo Bioworks",
-    "beaconbiosignals": "Beacon Biosignals",
-    "motifneurotech": "Motif Neurotech",
-    "neuropace": "NeuroPace",
-    "neuralink": "Neuralink",
-    "compasspathways": "Compass Pathways",
-    "clicktherapeutics": "Click Therapeutics",
-    "genedx": "GeneDx",
-    "adaptivebiotechnologies": "Adaptive Biotechnologies",
-    "ultimagenomics": "Ultima Genomics",
-    "parsebiosciences": "Parse Biosciences",
-    "science37": "Science 37",
-    "truveta": "Truveta",
-    "qventus": "Qventus",
-    "current": "Current Health",
-    "letsgetchecked": "LetsGetChecked",
-    "garnerhealth": "Garner Health",
-    "bouldercare": "Boulder Care",
-    "outsetmedical": "Outset Medical",
-    "tebra": "Tebra",
-    "mantrahealth": "Mantra Health",
-    "align": "Align Technology",
-    "tomorrow": "Tomorrow Health",
-    "coverahealth": "Covera Health",
-    "1uphealth": "1upHealth",
-    "seer": "Seer",
-    "canopycare": "Canopy",
-    "rightway": "Rightway Healthcare",
-    # Behavioral health & care delivery
-    "modernhealth": "Modern Health",
-    "alma": "Alma",
-    "bicyclehealth": "Bicycle Health",
-    "formhealth": "Form Health",
-    "instridehealth": "InStride Health",
-    "suki": "Suki",
-    "tia": "Tia",
-    "plume": "Plume",
-    "folxhealth": "Folx Health",
-    "parsleyhealth": "Parsley Health",
-    "honor": "Honor",
-    "hazel": "Hazel Health",
-    "carbon": "Carbon Health",
-    "patientpoint": "PatientPoint",
-    "vitablehealth": "Vitable Health",
-    "village": "VillageMD",
-    # Home-based care, aging & care navigation
-    "jukeboxhealth": "Jukebox Health",
-    "papa": "Papa",
-    "homeward": "Homeward",
-    "uniteus": "Unite Us",
-    "wellthy": "Wellthy",
-    "mavenclinic": "Maven",
-    "carrotfertility": "Carrot Fertility",
-    "welbehealth": "WelbeHealth",
-    "cleo": "Cleo",
-    "thirtymadison": "Thirty Madison",
-    "found": "Found",
-    "candid": "Candid Health",
-    "curative": "Curative",
-    "babylist": "Babylist",
-    # Diagnostics, biotech & medtech (additional)
-    "beamtherapeutics": "Beam Therapeutics",
-    "elementbiosciences": "Element Biosciences",
-    "generatebiomedicines": "Generate Biomedicines",
-    "relaytherapeutics": "Relay Therapeutics",
-    "tesseratherapeutics": "Tessera Therapeutics",
-    "florencehealthcare": "Florence Healthcare",
-    "biofourmis": "Biofourmis",
-    # Additional probed biotech / medtech startups (Jun 2026)
-    "quince": "Quince Therapeutics",
-    "verve": "Verve Therapeutics",
-    "primemedicine": "Prime Medicine",
-    "legendcareers": "Legend Biotech",
-    "isomorphiclabs": "Isomorphic Labs",
-    "xairatherapeutics": "Xaira Therapeutics",
-    "inceptive": "Inceptive",
-    "integratedbiosciencesinc": "Integrated Biosciences",
-    "formbio": "Form Bio",
-    # Behavioral health & care delivery (additional)
-    "betterhelp": "BetterHelp",
-    "talkspace": "Talkspace",
-    "cerebral": "Cerebral",
-    "meruhealth": "Meru Health",
-    "ww": "WeightWatchers",
-    "springhealth66": "Spring Health",
-    "octave": "Octave",
-    "twochairs": "Two Chairs",
-    "charliehealth": "Charlie Health",
-    "onemedical": "One Medical",
-    "forward": "Forward",
-    # Additional verified Greenhouse boards (tech)
-    "databricks": "Databricks",
-    "mongodb": "MongoDB",
-    "datadog": "Datadog",
-    "okta": "Okta",
-    "zscaler": "Zscaler",
-    "roblox": "Roblox",
-    "block": "Block",
-    "airbnb": "Airbnb",
-    "cloudflare": "Cloudflare",
-    "elastic": "Elastic",
-    "pinterest": "Pinterest",
-    "scaleai": "Scale AI",
-    "instacart": "Instacart",
-    "riotgames": "Riot Games",
-    "robinhood": "Robinhood",
-    "affirm": "Affirm",
-    "twilio": "Twilio",
-    "reddit": "Reddit",
-    "lyft": "Lyft",
-    "gitlab": "GitLab",
-    "epicgames": "Epic Games",
-    "sofi": "SoFi",
-    "fivetran": "Fivetran",
-    "oura": "Oura",
-    "gusto": "Gusto",
-    "discord": "Discord",
-    "chime": "Chime",
-    "hightouch": "Hightouch",
-    "duolingo": "Duolingo",
-    "mercury": "Mercury",
-    "amplitude": "Amplitude",
-    "pagerduty": "PagerDuty",
-    "singlestore": "SingleStore",
-    "fastly": "Fastly",
-    "heartflowinc": "HeartFlow",
-    "launchdarkly": "LaunchDarkly",
-    "cockroachlabs": "Cockroach Labs",
-    "marqeta": "Marqeta",
-    "mixpanel": "Mixpanel",
-    "betterment": "Betterment",
-    "khanacademy": "Khan Academy",
-    "labelbox": "Labelbox",
-    "planetscale": "PlanetScale",
-    "coursera": "Coursera",
-    "stabilityai": "Stability AI",
-    "masterclass": "MasterClass",
-    "netlify": "Netlify",
-    "calm": "Calm",
-    # Health / biotech / medtech SaaS
-    "definitivehc": "Definitive Healthcare",
-    "elationhealth": "Elation Health",
-    "qualio": "Qualio",
-    "dotmatics": "Dotmatics",
-    "iterativehealth": "Iterative Health",
-    "ketryx": "Ketryx",
-    "axuall": "Axuall",
-    "smarterdx": "SmarterDx",
-    "particlehealth": "Particle Health",
-    "medispend": "Medispend",
-}
+from __future__ import annotations
 
-# Lever site slugs → display name (jobs.lever.co/{slug}).
-# Healthcare/medtech boards listed first.
-LEVER_BOARDS = {
-  # Digital health & healthtech
-  "lyrahealth": "Lyra Health",
-  "includedhealth": "Included Health",
-  "ro": "Ro",
-  "swordhealth": "Sword Health",
-  "aledade": "Aledade",
-  "nomihealth": "Nomi Health",
-  "form": "Form Health",
-  "plume": "Plume",
-  "florence": "Florence Healthcare",
-  # Diagnostics, biotech & medtech
-  "veeva": "Veeva",
-  "grailbio": "GRAIL",
-  "relay": "Relay Therapeutics",
-  "h1": "H1",
-  # Wellness & devices
-  "whoop": "WHOOP",
-  # Digital health (additional)
-  "everlywell": "Everlywell",
-  "mantra": "Mantra Health",
-  "zushealth": "Zus Health",
-  "synthego": "Synthego",
-  # Home-based care, aging & care navigation
-  "findhelp": "Findhelp",
-  # Health / biotech / medtech SaaS
-  "canvasmedical": "Canvas Medical",
-  "clarifyhealth": "Clarify Health",
-  "hint": "Hint Health",
-  "arcadia": "Arcadia",
-  "quartzy": "Quartzy",
-}
+import csv
+from pathlib import Path
 
-# Ashby job board slugs → display name (jobs.ashbyhq.com/{slug}).
-# Healthcare/medtech boards listed first.
-ASHBY_BOARDS = {
-  # Digital health & healthtech
-  "headway": "Headway",
-  "abridge": "Abridge",
-  "ambiencehealthcare": "Ambience Healthcare",
-  "notable": "Notable Health",
-  "virtahealth": "Virta Health",
-  "nabla": "Nabla",
-  "cedar": "Cedar",
-  "collective": "Collective Health",
-  "candidhealth": "Candid Health",
-  "capsule": "Capsule",
-  "vitable": "Vitable Health",
-  "found": "Found",
-  "hatch": "Hatch",
-  "levels": "Levels",
-  # Diagnostics, biotech & medtech
-  "benchling": "Benchling",
-  "insitro": "Insitro",
-  "owkin": "Owkin",
-  "generate": "Generate Biomedicines",
-  "adaptive": "Adaptive Biotechnologies",
-  "relay": "Relay Therapeutics",
-  "beam": "Beam Therapeutics",
-  # Wellness & devices
-  "whoop": "WHOOP",
-  # Digital health & behavioral health (additional)
-  "talkiatry": "Talkiatry",
-  "commure": "Commure",
-  "equip": "Equip",
-  "rula": "Rula",
-  "metriport": "Metriport",
-  "wheel": "Wheel",
-  "outset": "Outset Medical",
-  "icon": "ICON",
-  # Home-based care, aging & care navigation
-  "cityblock": "Cityblock Health",
-  "wellth": "Wellth",
-  "sondermind": "SonderMind",
-  # Health / biotech / medtech SaaS
-  "openevidence": "OpenEvidence",
-  "regard": "Regard",
-  "healthgorilla": "Health Gorilla",
-  "medallion": "Medallion",
-}
+COMPANIES_CSV = Path(__file__).resolve().parent / "data" / "companies.csv"
 
-# Workable account subdomains → display name (apply.workable.com/{subdomain}).
-# Healthcare/medtech boards listed first.
-WORKABLE_BOARDS = {
-    "editas": "Editas Medicine",
-    "steadymd": "SteadyMD",
-    "accuragen": "AccuraGen",
-    "drug-hunter": "Drug Hunter",
-    "cambridge-healthcare-research": "Cambridge Healthcare Research",
-    "sokol-gxp-serivces": "SOKOL GxP Services",
-    # Health / biotech / medtech SaaS
-    "redox": "Redox",
-}
+VALID_ATS = frozenset({"greenhouse", "lever", "ashby", "workable", "workday"})
+VALID_CATEGORIES = frozenset({
+    "Clinical AI",
+    "EHR",
+    "Provider Operations",
+    "Population Health",
+    "Healthcare Infrastructure",
+    "Revenue Cycle",
+    "Medical Devices",
+    "Diagnostics",
+    "Clinical Research",
+    "Healthcare Analytics",
+    "Healthcare CRM",
+    "Veterinary",
+    "Behavioral Health",
+    "Employer Health",
+    "General Tech",
+})
 
-# Workday career sites → display name and API routing metadata.
-# Find tenant/site from the company's myworkdayjobs.com careers URL:
-#   https://{tenant}.{wd_server}.myworkdayjobs.com/{site}/...
-# Healthcare/medtech boards listed first. Large boards (e.g. CVS) are omitted
-# to keep run times reasonable.
-WORKDAY_BOARDS = {
-    "medtronic": {
-        "name": "Medtronic",
-        "wd_server": "wd1",
-        "site": "MedtronicCareers",
-    },
-    "pfizer": {
-        "name": "Pfizer",
-        "wd_server": "wd1",
-        "site": "PfizerCareers",
-    },
-    "stryker": {
-        "name": "Stryker",
-        "wd_server": "wd1",
-        "site": "StrykerCareers",
-    },
-    "novartis": {
-        "name": "Novartis",
-        "wd_server": "wd3",
-        "site": "Novartis_Careers",
-    },
-    "gsk": {
-        "name": "GSK",
-        "wd_server": "wd5",
-        "site": "GSKCareers",
-    },
-    "gilead": {
-        "name": "Gilead",
-        "wd_server": "wd1",
-        "site": "gileadcareers",
-    },
-    "sanofi": {
-        "name": "Sanofi",
-        "wd_server": "wd3",
-        "site": "SanofiCareers",
-    },
-    "humana": {
-        "name": "Humana",
-        "wd_server": "wd5",
-        "site": "Humana_External_Career_Site",
-    },
-    "centene": {
-        "name": "Centene",
-        "wd_server": "wd5",
-        "site": "Centene_External",
-    },
-    "baxter": {
-        "name": "Baxter",
-        "wd_server": "wd1",
-        "site": "Baxter",
-    },
-    "dexcom": {
-        "name": "Dexcom",
-        "wd_server": "wd1",
-        "site": "Dexcom",
-    },
-    "iqvia": {
-        "name": "IQVIA",
-        "wd_server": "wd1",
-        "site": "IQVIA",
-    },
-    # Large health systems (slow — 16k+ jobs; included for maximum coverage)
-    "cvshealth": {
-        "name": "CVS Health",
-        "wd_server": "wd1",
-        "site": "CVS_Health_Careers",
-    },
-}
+
+def _is_enabled(value: str) -> bool:
+    return value.strip().casefold() in {"yes", "y", "true", "1"}
+
+
+def load_companies() -> list[dict[str, str]]:
+    """Load all company rows from the operational registry CSV."""
+    if not COMPANIES_CSV.exists():
+        raise FileNotFoundError(f"Company registry not found: {COMPANIES_CSV}")
+
+    with COMPANIES_CSV.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        return [dict(row) for row in reader]
+
+
+def load_boards() -> tuple[
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, dict],
+]:
+    """
+    Build ATS board dicts from data/companies.csv.
+
+    Returns GREENHOUSE_BOARDS, LEVER_BOARDS, ASHBY_BOARDS, WORKABLE_BOARDS,
+    and WORKDAY_BOARDS in the shapes expected by job_scraper.py.
+    """
+    greenhouse: dict[str, str] = {}
+    lever: dict[str, str] = {}
+    ashby: dict[str, str] = {}
+    workable: dict[str, str] = {}
+    workday: dict[str, dict] = {}
+
+    for row in load_companies():
+        if not _is_enabled(row.get("enabled", "")):
+            continue
+
+        ats = row.get("ats", "").strip().casefold()
+        slug = row.get("slug", "").strip()
+        name = row.get("display_name", "").strip()
+        if not ats or not slug or not name:
+            continue
+
+        if ats == "greenhouse":
+            greenhouse[slug] = name
+        elif ats == "lever":
+            lever[slug] = name
+        elif ats == "ashby":
+            ashby[slug] = name
+        elif ats == "workable":
+            workable[slug] = name
+        elif ats == "workday":
+            workday[slug] = {
+                "name": name,
+                "wd_server": row.get("wd_server", "").strip(),
+                "site": row.get("workday_site", "").strip(),
+            }
+
+    return greenhouse, lever, ashby, workable, workday
+
+
+GREENHOUSE_BOARDS, LEVER_BOARDS, ASHBY_BOARDS, WORKABLE_BOARDS, WORKDAY_BOARDS = (
+    load_boards()
+)
 
 # Job titles must contain at least one of these phrases (case-insensitive).
 TITLE_INCLUDES = [
