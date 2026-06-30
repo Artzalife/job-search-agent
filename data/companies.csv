@@ -262,3 +262,24 @@ baxter,Medical Devices,Baxter,workday,baxter,yes,,wd1,Baxter
 dexcom,Medical Devices,Dexcom,workday,dexcom,yes,,wd1,Dexcom
 iqvia,Clinical Research,IQVIA,workday,iqvia,yes,,wd1,IQVIA
 cvs-health,Population Health,CVS Health,workday,cvshealth,yes,,wd1,CVS_Health_Careers
+acuitymd,Healthcare Analytics,AcuityMD,greenhouse,acuitymd,yes,,,
+layer-health,Clinical AI,Layer Health,greenhouse,layerhealth,yes,,,
+perfectserve,Provider Operations,PerfectServe,greenhouse,perfectserve,yes,,,
+medrio,Clinical Research,Medrio,greenhouse,medrio,yes,,,
+medeanalytics,Healthcare Analytics,MedeAnalytics,greenhouse,medeanalytics,yes,,,
+moxe,Healthcare Infrastructure,Moxe,greenhouse,moxehealth,yes,,,
+aidoc,Clinical AI,Aidoc,greenhouse,aidocmedical,yes,,,
+personalis,Diagnostics,Personalis,greenhouse,personalisinc,yes,,,
+pointclickcare,EHR,PointClickCare,lever,pointclickcare,yes,,,
+leantaas,Provider Operations,LeanTaaS,lever,leantaas,yes,,,
+corti,Clinical AI,Corti,ashby,corti,yes,,,
+akasa,Revenue Cycle,AKASA,ashby,akasa,yes,,,
+idexx,Veterinary,IDEXX,workday,idexx,yes,,wd1,IDEXX
+waystar,Revenue Cycle,Waystar,workday,waystar,yes,,wd1,Waystar
+r1-rcm,Revenue Cycle,R1 RCM,workday,r1rcm,yes,,wd1,R1RCM
+tempus,Diagnostics,Tempus,workday,tempus,yes,,wd5,Tempus_Careers
+exact-sciences,Diagnostics,Exact Sciences,workday,exactsciences,yes,,wd1,Exact_Sciences
+wellsky,EHR,WellSky,workday,wellsky,yes,,wd1,WellSkyCareers
+netsmart,EHR,Netsmart,workday,ntst,yes,,wd1,Careers
+guardant-health,Diagnostics,Guardant Health,workday,gh,yes,,wd1,gh
+matrixcare,EHR,MatrixCare,workday,resmed,yes,,wd3,MatrixCare_External_Careers
