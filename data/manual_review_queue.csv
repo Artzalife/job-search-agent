@@ -1,0 +1,69 @@
+display_name,category,reason,slug_candidates
+Hippocratic AI,Clinical AI,No supported ATS board found via API probe,"hippocraticai, hippocratic"
+DeepScribe,Clinical AI,No supported ATS board found via API probe,deepscribe
+Glass Health,Clinical AI,No supported ATS board found via API probe,"glasshealth, glasshealthinc"
+Viz.ai,Clinical AI,No supported ATS board found via API probe,"vizai, viz"
+Paige,Clinical AI,No supported ATS board found via API probe,"paige, paigeai"
+Proscia,Clinical AI,No supported ATS board found via API probe,proscia
+Kheiron Medical,Clinical AI,No supported ATS board found via API probe,kheiron
+Enlitic,Clinical AI,No supported ATS board found via API probe,enlitic
+Riverain Technologies,Clinical AI,No supported ATS board found via API probe,"riverain, riveraintech"
+Subtle Medical,Clinical AI,No supported ATS board found via API probe,subtlemedical
+Quibim,Clinical AI,No supported ATS board found via API probe,quibim
+Evidation,Clinical AI,No supported ATS board found via API probe,evidation
+Caption Health,Clinical AI,No supported ATS board found via API probe,"captionhealth, caption"
+Imagen Technologies,Clinical AI,No supported ATS board found via API probe,"imagen, imagentech"
+Avicenna.AI,Clinical AI,No supported ATS board found via API probe,"avicenna, avicennaai"
+Autonomize AI,Clinical AI,No supported ATS board found via API probe,"autonomize, autonomizeai"
+Pieces Technologies,Clinical AI,No supported ATS board found via API probe,"pieces, piecestech"
+Qure.ai,Clinical AI,No supported ATS board found via API probe,"qureai, qure"
+Biobeat,Clinical AI,No supported ATS board found via API probe,biobeat
+Digital Diagnostics,Clinical AI,No supported ATS board found via API probe,digitaldiagnostics
+Gestalt Diagnostics,Clinical AI,No supported ATS board found via API probe,"gestalt, gestaltdiagnostics"
+Imagene,Clinical AI,No supported ATS board found via API probe,"imagene, imageneai"
+Presagen,Clinical AI,No supported ATS board found via API probe,presagen
+Nucleai,Clinical AI,No supported ATS board found via API probe,nucleai
+Syntegra,Clinical AI,No supported ATS board found via API probe,syntegra
+Parlay Health,Clinical AI,No supported ATS board found via API probe,"parlay, parlayhealth"
+Ellie Health,Clinical AI,No supported ATS board found via API probe,"ellie, elliehealth"
+Noom,Clinical AI,No supported ATS board found via API probe,noom
+Perspectum,Clinical AI,No supported ATS board found via API probe,perspectum
+Contextflow,Clinical AI,No supported ATS board found via API probe,contextflow
+AIMedics,Clinical AI,No supported ATS board found via API probe,"aimedics, aimed"
+Springbok AI,Clinical AI,No supported ATS board found via API probe,"springbok, springbokai"
+SomaLogic,Clinical AI,No supported ATS board found via API probe,somalogic
+Huma,Clinical AI,No supported ATS board found via API probe,"huma, humae"
+Health Catalyst,Clinical AI,No supported ATS board found via API probe,healthcatalyst
+Innovaccer,Clinical AI,No supported ATS board found via API probe,innovaccer
+Recursion Pharmaceuticals,Clinical AI,No supported ATS board found via API probe,recursionpharmaceuticals
+Foundation Medicine,Clinical AI,No supported ATS board found via API probe,foundationmedicine
+Caris Life Sciences,Clinical AI,No supported ATS board found via API probe,"caris, carislifesciences"
+NeoGenomics,Clinical AI,No supported ATS board found via API probe,neogenomics
+Castle Biosciences,Clinical AI,No supported ATS board found via API probe,castlebiosciences
+Sonera Health,Clinical AI,No supported ATS board found via API probe,"sonera, sonerahealth"
+Maven Clinic,Clinical AI,No supported ATS board found via API probe,mavenclinic
+Hippocratic AI,Clinical AI,No supported ATS board found; likely custom or unsupported ATS,"hippocraticai, hippocratic"
+DeepScribe,Clinical AI,No supported ATS board found via API probe,deepscribe
+Glass Health,Clinical AI,No supported ATS board found via API probe,"glasshealth, glasshealthinc"
+Viz.ai,Clinical AI,No supported ATS board found; may use Workday or custom portal,"vizai, viz, vizdotai"
+Paige,Clinical AI,No supported ATS board found via API probe,"paige, paigeai"
+Proscia,Clinical AI,No supported ATS board found via API probe,proscia
+Qure.ai,Clinical AI,No supported ATS board found via API probe,"qureai, qure"
+Kheiron Medical,Clinical AI,No supported ATS board found via API probe,"kheiron, kheironmedical"
+Enlitic,Clinical AI,No supported ATS board found via API probe,"enlitic, enliticinc"
+Riverain Technologies,Clinical AI,No supported ATS board found via API probe,"riverain, riveraintech"
+Subtle Medical,Clinical AI,No supported ATS board found via API probe,subtlemedical
+Quibim,Clinical AI,No supported ATS board found via API probe,"quibim, quibimmedical"
+Caption Health,Clinical AI,No supported ATS board found via API probe,"captionhealth, caption"
+Presagen,Clinical AI,No supported ATS board found via API probe,"presagen, presagenhealth"
+Nucleai,Clinical AI,No supported ATS board found via API probe,"nucleai, nucleaihealth"
+Celsius Health,Clinical AI,"Ambiguous slug match (workable/celsius likely Celsius Network, not healthcare)",celsius
+Fabric Health,Clinical AI,Ambiguous slug match on workable/fabric,"fabric, fabrichealth"
+Color Health,Clinical AI,Ambiguous slug match on lever/color,"color, colorhealth"
+Tandem Health,Clinical AI,Ambiguous slug match on workable/tandem,"tandem, tandemhealth"
+Roam Analytics,Clinical AI,Ambiguous slug match on workable/roam,"roam, roamanalytics"
+Volocare,Clinical AI,Ambiguous slug match on workable/volo,"volo, volocare"
+Sophia Genetics,Clinical AI,Ambiguous slug match on workable/sophia,"sophiagenetics, sophia"
+Harrison.ai,Clinical AI,Ambiguous slug match on workable/harrison,"harrison, harrisonai"
+Myriad Genetics,Clinical AI,Ambiguous slug match on workable/myriad,"myriad, myriadgenetics"
+Paradigm Health,Clinical AI,Ambiguous slug match on greenhouse/paradigm,"paradigm, paradigmhealth"
