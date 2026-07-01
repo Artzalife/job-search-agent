@@ -1,0 +1,322 @@
+[
+  {
+    "display_name": "Phreesia",
+    "slug_candidates": "phreesia",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Kyruus Health",
+    "slug_candidates": "kyruus, kyruushealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "ModMed",
+    "slug_candidates": "modmed, modernizingmedicine",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Health Catalyst",
+    "slug_candidates": "healthcatalyst",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Awell",
+    "slug_candidates": "awell, awellhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Healthie",
+    "slug_candidates": "healthie, gethealthie",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Availity",
+    "slug_candidates": "availity",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "DrChrono",
+    "slug_candidates": "drchrono",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Kareo",
+    "slug_candidates": "kareo, tebra",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Practice Fusion",
+    "slug_candidates": "practicefusion",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Chronius Health",
+    "slug_candidates": "chronius, chroniushealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "RecoveryOne",
+    "slug_candidates": "recoveryone",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "CareBridge",
+    "slug_candidates": "carebridge",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "CarePort",
+    "slug_candidates": "careport, careporthealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Turquoise Health",
+    "slug_candidates": "turquoisehealth, turquoise",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Clearstep",
+    "slug_candidates": "clearstep, clearstephealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Rhinogram",
+    "slug_candidates": "rhinogram",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "symplr",
+    "slug_candidates": "symplr",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Iodine Software",
+    "slug_candidates": "iodine, iodinesoftware",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "LogixHealth",
+    "slug_candidates": "logixhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Navina",
+    "slug_candidates": "navina, navinahealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Athelas",
+    "slug_candidates": "athelas, athelashealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Opmed",
+    "slug_candidates": "opmed, opmedai",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Moxe Health",
+    "slug_candidates": "moxehealth, moxe",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Solutionreach",
+    "slug_candidates": "solutionreach",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "TigerConnect",
+    "slug_candidates": "tigerconnect, tigertext",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Radix Health",
+    "slug_candidates": "radixhealth, radix",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Relatient",
+    "slug_candidates": "relatient",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Pieces Technologies",
+    "slug_candidates": "pieces, piecestech",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Flexpa",
+    "slug_candidates": "flexpa",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Quantum Health",
+    "slug_candidates": "quantumhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Sonera Health",
+    "slug_candidates": "sonera, sonerahealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Hims & Hers",
+    "slug_candidates": "hims, forhims",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Carrum Health",
+    "slug_candidates": "carrum, carrumhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Cedar Gate",
+    "slug_candidates": "cedargate",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Experian Health",
+    "slug_candidates": "experianhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "FinThrive",
+    "slug_candidates": "finthrive, nthrive",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "ClosedLoop",
+    "slug_candidates": "closedloop, closedloopai",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Cedar Care",
+    "slug_candidates": "cedarcare",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Season Health",
+    "slug_candidates": "seasonhealth, season",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Ginger",
+    "slug_candidates": "ginger, gingerio",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Brightside Health",
+    "slug_candidates": "brightside, brightsidehealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "CirrusMD",
+    "slug_candidates": "cirrusmd",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Firefly Health",
+    "slug_candidates": "firefly, fireflyhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Iora Health",
+    "slug_candidates": "iora, iorahealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Oak Street Health",
+    "slug_candidates": "oakstreethealth, oakstreet",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "ChenMed",
+    "slug_candidates": "chenmed",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "SchoolCare",
+    "slug_candidates": "schoolcare",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Bamboo Health",
+    "slug_candidates": "bamboohealth, bamboo",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Collective Medical",
+    "slug_candidates": "collectivemedical",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "PatientPing",
+    "slug_candidates": "patientping, bamboohealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Audacious Inquiry",
+    "slug_candidates": "audaciousinquiry, aihealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Lightbeam Health",
+    "slug_candidates": "lightbeam, lightbeamhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Persivia",
+    "slug_candidates": "persivia",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Datavant",
+    "slug_candidates": "datavant",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Ciox Health",
+    "slug_candidates": "ciox, cioxhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "MRO",
+    "slug_candidates": "mro, mrocorp",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Verisma",
+    "slug_candidates": "verisma",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Epion Health",
+    "slug_candidates": "epion, epionhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Luma",
+    "slug_candidates": "luma",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Kyruus",
+    "slug_candidates": "kyruus",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Vocera",
+    "slug_candidates": "vocera, stryker",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "TigerText",
+    "slug_candidates": "tigertext, tigerconnect",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "NextGen",
+    "slug_candidates": "nextgen",
+    "reason": "No supported ATS board found via API probe"
+  }
+]

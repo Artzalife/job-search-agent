@@ -42,21 +42,6 @@ NeoGenomics,Clinical AI,No supported ATS board found via API probe,neogenomics
 Castle Biosciences,Clinical AI,No supported ATS board found via API probe,castlebiosciences
 Sonera Health,Clinical AI,No supported ATS board found via API probe,"sonera, sonerahealth"
 Maven Clinic,Clinical AI,No supported ATS board found via API probe,mavenclinic
-Hippocratic AI,Clinical AI,No supported ATS board found; likely custom or unsupported ATS,"hippocraticai, hippocratic"
-DeepScribe,Clinical AI,No supported ATS board found via API probe,deepscribe
-Glass Health,Clinical AI,No supported ATS board found via API probe,"glasshealth, glasshealthinc"
-Viz.ai,Clinical AI,No supported ATS board found; may use Workday or custom portal,"vizai, viz, vizdotai"
-Paige,Clinical AI,No supported ATS board found via API probe,"paige, paigeai"
-Proscia,Clinical AI,No supported ATS board found via API probe,proscia
-Qure.ai,Clinical AI,No supported ATS board found via API probe,"qureai, qure"
-Kheiron Medical,Clinical AI,No supported ATS board found via API probe,"kheiron, kheironmedical"
-Enlitic,Clinical AI,No supported ATS board found via API probe,"enlitic, enliticinc"
-Riverain Technologies,Clinical AI,No supported ATS board found via API probe,"riverain, riveraintech"
-Subtle Medical,Clinical AI,No supported ATS board found via API probe,subtlemedical
-Quibim,Clinical AI,No supported ATS board found via API probe,"quibim, quibimmedical"
-Caption Health,Clinical AI,No supported ATS board found via API probe,"captionhealth, caption"
-Presagen,Clinical AI,No supported ATS board found via API probe,"presagen, presagenhealth"
-Nucleai,Clinical AI,No supported ATS board found via API probe,"nucleai, nucleaihealth"
 Celsius Health,Clinical AI,"Ambiguous slug match (workable/celsius likely Celsius Network, not healthcare)",celsius
 Fabric Health,Clinical AI,Ambiguous slug match on workable/fabric,"fabric, fabrichealth"
 Color Health,Clinical AI,Ambiguous slug match on lever/color,"color, colorhealth"
@@ -67,3 +52,73 @@ Sophia Genetics,Clinical AI,Ambiguous slug match on workable/sophia,"sophiagenet
 Harrison.ai,Clinical AI,Ambiguous slug match on workable/harrison,"harrison, harrisonai"
 Myriad Genetics,Clinical AI,Ambiguous slug match on workable/myriad,"myriad, myriadgenetics"
 Paradigm Health,Clinical AI,Ambiguous slug match on greenhouse/paradigm,"paradigm, paradigmhealth"
+Phreesia,Provider Operations,No supported ATS board found via API probe,phreesia
+Kyruus Health,Provider Operations,No supported ATS board found via API probe,"kyruus, kyruushealth"
+ModMed,Provider Operations,No supported ATS board found via API probe,"modmed, modernizingmedicine"
+Health Catalyst,Provider Operations,No supported ATS board found via API probe,healthcatalyst
+Awell,Provider Operations,No supported ATS board found via API probe,"awell, awellhealth"
+Healthie,Provider Operations,No supported ATS board found via API probe,"healthie, gethealthie"
+Availity,Provider Operations,No supported ATS board found via API probe,availity
+DrChrono,Provider Operations,No supported ATS board found via API probe,drchrono
+Kareo,Provider Operations,No supported ATS board found via API probe,"kareo, tebra"
+Practice Fusion,Provider Operations,No supported ATS board found via API probe,practicefusion
+Chronius Health,Provider Operations,No supported ATS board found via API probe,"chronius, chroniushealth"
+RecoveryOne,Provider Operations,No supported ATS board found via API probe,recoveryone
+CareBridge,Provider Operations,No supported ATS board found via API probe,carebridge
+CarePort,Provider Operations,No supported ATS board found via API probe,"careport, careporthealth"
+Turquoise Health,Provider Operations,No supported ATS board found via API probe,"turquoisehealth, turquoise"
+Clearstep,Provider Operations,No supported ATS board found via API probe,"clearstep, clearstephealth"
+Rhinogram,Provider Operations,No supported ATS board found via API probe,rhinogram
+symplr,Provider Operations,No supported ATS board found via API probe,symplr
+Iodine Software,Provider Operations,No supported ATS board found via API probe,"iodine, iodinesoftware"
+LogixHealth,Provider Operations,No supported ATS board found via API probe,logixhealth
+Navina,Provider Operations,No supported ATS board found via API probe,"navina, navinahealth"
+Athelas,Provider Operations,No supported ATS board found via API probe,"athelas, athelashealth"
+Opmed,Provider Operations,No supported ATS board found via API probe,"opmed, opmedai"
+Moxe Health,Provider Operations,No supported ATS board found via API probe,"moxehealth, moxe"
+Solutionreach,Provider Operations,No supported ATS board found via API probe,solutionreach
+TigerConnect,Provider Operations,No supported ATS board found via API probe,"tigerconnect, tigertext"
+Radix Health,Provider Operations,No supported ATS board found via API probe,"radixhealth, radix"
+Relatient,Provider Operations,No supported ATS board found via API probe,relatient
+Pieces Technologies,Provider Operations,No supported ATS board found via API probe,"pieces, piecestech"
+Flexpa,Provider Operations,No supported ATS board found via API probe,flexpa
+Quantum Health,Provider Operations,No supported ATS board found via API probe,quantumhealth
+Sonera Health,Provider Operations,No supported ATS board found via API probe,"sonera, sonerahealth"
+Hims & Hers,Provider Operations,No supported ATS board found via API probe,"hims, forhims"
+Carrum Health,Provider Operations,No supported ATS board found via API probe,"carrum, carrumhealth"
+Cedar Gate,Provider Operations,No supported ATS board found via API probe,cedargate
+Experian Health,Provider Operations,No supported ATS board found via API probe,experianhealth
+FinThrive,Provider Operations,No supported ATS board found via API probe,"finthrive, nthrive"
+ClosedLoop,Provider Operations,No supported ATS board found via API probe,"closedloop, closedloopai"
+Cedar Care,Provider Operations,No supported ATS board found via API probe,cedarcare
+Season Health,Provider Operations,No supported ATS board found via API probe,"seasonhealth, season"
+Ginger,Provider Operations,No supported ATS board found via API probe,"ginger, gingerio"
+Brightside Health,Provider Operations,No supported ATS board found via API probe,"brightside, brightsidehealth"
+CirrusMD,Provider Operations,No supported ATS board found via API probe,cirrusmd
+Firefly Health,Provider Operations,No supported ATS board found via API probe,"firefly, fireflyhealth"
+Iora Health,Provider Operations,No supported ATS board found via API probe,"iora, iorahealth"
+Oak Street Health,Provider Operations,No supported ATS board found via API probe,"oakstreethealth, oakstreet"
+ChenMed,Provider Operations,No supported ATS board found via API probe,chenmed
+SchoolCare,Provider Operations,No supported ATS board found via API probe,schoolcare
+Bamboo Health,Provider Operations,No supported ATS board found via API probe,"bamboohealth, bamboo"
+Collective Medical,Provider Operations,No supported ATS board found via API probe,collectivemedical
+PatientPing,Provider Operations,No supported ATS board found via API probe,"patientping, bamboohealth"
+Audacious Inquiry,Provider Operations,No supported ATS board found via API probe,"audaciousinquiry, aihealth"
+Lightbeam Health,Provider Operations,No supported ATS board found via API probe,"lightbeam, lightbeamhealth"
+Persivia,Provider Operations,No supported ATS board found via API probe,persivia
+Datavant,Provider Operations,No supported ATS board found via API probe,datavant
+Ciox Health,Provider Operations,No supported ATS board found via API probe,"ciox, cioxhealth"
+MRO,Provider Operations,No supported ATS board found via API probe,"mro, mrocorp"
+Verisma,Provider Operations,No supported ATS board found via API probe,verisma
+Epion Health,Provider Operations,No supported ATS board found via API probe,"epion, epionhealth"
+Luma,Provider Operations,No supported ATS board found via API probe,luma
+Kyruus,Provider Operations,No supported ATS board found via API probe,kyruus
+Vocera,Provider Operations,No supported ATS board found via API probe,"vocera, stryker"
+TigerText,Provider Operations,No supported ATS board found via API probe,"tigertext, tigerconnect"
+NextGen,Provider Operations,No supported ATS board found via API probe,nextgen
+DispatchHealth,Provider Operations,Ambiguous slug match on greenhouse/dispatch (unverified company name),"dispatch, dispatchhealth"
+Hinge Health,Provider Operations,Ambiguous slug match on workable/hinge (likely Hinge dating app),"hinge, hingehealth"
+Change Healthcare,Provider Operations,Ambiguous slug match on ashby/change (likely Change.org),"change, changehealthcare"
+Ribbon Health,Provider Operations,Ambiguous slug match on workable/ribbon,"ribbon, ribbonhealth"
+Greenway Health,Provider Operations,Ambiguous slug match on workable/greenway,"greenway, greenwayhealth"
+Blinq Health,Provider Operations,Ambiguous slug match on lever/blinq (non-healthcare postings),"blinq, blinqhealth"
