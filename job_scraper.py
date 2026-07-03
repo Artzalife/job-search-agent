@@ -39,6 +39,7 @@ import hashlib
 import html
 import json
 import re
+import socket
 import sys
 import threading
 import urllib.error
@@ -335,8 +336,11 @@ def fetch_json(url: str) -> object:
         url,
         headers={"Accept": "application/json", "User-Agent": "job-search-agent/1.0"},
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return json.load(response)
+    except (TimeoutError, socket.timeout) as exc:
+        raise urllib.error.URLError("timed out") from exc
 
 
 def fetch_json_post(url: str, payload: dict) -> object:
@@ -352,8 +356,11 @@ def fetch_json_post(url: str, payload: dict) -> object:
             "User-Agent": "job-search-agent/1.0",
         },
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return json.load(response)
+    except (TimeoutError, socket.timeout) as exc:
+        raise urllib.error.URLError("timed out") from exc
 
 
 def fetch_json_allow_404(url: str) -> tuple[int, object | None]:
