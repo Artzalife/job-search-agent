@@ -412,3 +412,88 @@ Foundation Medicine,Diagnostics,Ambiguous slug match on ashby/foundation (not Fo
 Ezra,Diagnostics,Ambiguous slug match on greenhouse/ezra (not Ezra screening),"ezra, ezrahealth"
 Sonic Healthcare,Diagnostics,Ambiguous slug match on greenhouse/sonic,"sonic, sonichealthcare"
 Myriad Genetics,Diagnostics,No supported ATS board found via API probe,"myriad, myriadgenetics"
+ModMed,EHR,No supported ATS board found via API probe,"modmed, modernizingmedicine"
+DrChrono,EHR,No supported ATS board found via API probe,drchrono
+Practice Fusion,EHR,No supported ATS board found via API probe,practicefusion
+Amazing Charts,EHR,No supported ATS board found via API probe,amazingcharts
+ChartLogic,EHR,No supported ATS board found via API probe,chartlogic
+Practice EHR,EHR,No supported ATS board found via API probe,practiceehr
+NueMD,EHR,No supported ATS board found via API probe,nuemd
+PracticeSuite,EHR,No supported ATS board found via API probe,practicesuite
+PrognoCIS,EHR,No supported ATS board found via API probe,prognocis
+Meditab,EHR,No supported ATS board found via API probe,meditab
+Azalea Health,EHR,No supported ATS board found via API probe,"azaleahealth, azalea"
+MDLand,EHR,No supported ATS board found via API probe,mdland
+CollaborateMD,EHR,No supported ATS board found via API probe,collaboratemd
+iSalus Healthcare,EHR,No supported ATS board found via API probe,"isalus, isalushealthcare"
+Kareo,EHR,No supported ATS board found via API probe,kareo
+Hello Health,EHR,No supported ATS board found via API probe,hellohealth
+DocVilla,EHR,No supported ATS board found via API probe,docvilla
+Healthie,EHR,No supported ATS board found via API probe,"healthie, gethealthie"
+Veradigm,EHR,No supported ATS board found via API probe,"veradigm, allscripts"
+MEDHOST,EHR,No supported ATS board found via API probe,medhost
+TruBridge,EHR,No supported ATS board found via API probe,"trubridge, cpsi"
+MEDITECH,EHR,No supported ATS board found via API probe,meditech
+Homecare Homebase,EHR,No supported ATS board found via API probe,"homecarehomebase, hchb"
+ClearCare,EHR,No supported ATS board found via API probe,"clearcare, clearcareonline"
+KanTime,EHR,No supported ATS board found via API probe,kantime
+Casamba,EHR,No supported ATS board found via API probe,casamba
+Consolo,EHR,No supported ATS board found via API probe,"consolo, consoloservices"
+SigmaCare,EHR,No supported ATS board found via API probe,sigmacare
+Axxess Hospice,EHR,No supported ATS board found via API probe,axxesshospice
+Qualifacts,EHR,No supported ATS board found via API probe,qualifacts
+Credible Behavioral Health,EHR,No supported ATS board found via API probe,"crediblebh, crediblebehavioral"
+Carepatron,EHR,No supported ATS board found via API probe,carepatron
+Valant,EHR,No supported ATS board found via API probe,"valant, valanthealth"
+ICANotes,EHR,No supported ATS board found via API probe,icanotes
+EchoVantage,EHR,No supported ATS board found via API probe,echovantage
+BestNotes,EHR,No supported ATS board found via API probe,bestnotes
+PIMSY,EHR,No supported ATS board found via API probe,pimsy
+MyClientsPlus,EHR,No supported ATS board found via API probe,myclientsplus
+Ensora Health,EHR,No supported ATS board found via API probe,"ensora, ensorahealth"
+RevolutionEHR,EHR,No supported ATS board found via API probe,revolutionehr
+Eyefinity,EHR,No supported ATS board found via API probe,eyefinity
+gGastro,EHR,No supported ATS board found via API probe,"ggastro, gmed"
+WebPT,EHR,No supported ATS board found via API probe,webpt
+Clinicient,EHR,No supported ATS board found via API probe,clinicient
+Raintree Systems,EHR,No supported ATS board found via API probe,"raintree, raintreesystems"
+Phoenix Ortho,EHR,No supported ATS board found via API probe,phoenixortho
+OrthoFi,EHR,No supported ATS board found via API probe,orthofi
+Modernizing Medicine,EHR,No supported ATS board found via API probe,"modernizingmedicine, modmed"
+EyeMD EMR,EHR,No supported ATS board found via API probe,"eyemdemr, eyemd"
+Medstreaming,EHR,No supported ATS board found via API probe,medstreaming
+Ophthalmic Imaging Systems,EHR,No supported ATS board found via API probe,"ois, oismedical"
+CompuGroup Medical,EHR,No supported ATS board found via API probe,"cgm, compugroup"
+Ambra Health,EHR,No supported ATS board found via API probe,"ambra, ambrahealth"
+RamSoft,EHR,No supported ATS board found via API probe,ramsoft
+NovaRad,EHR,No supported ATS board found via API probe,novarad
+Intelerad,EHR,No supported ATS board found via API probe,intelerad
+Sectra,EHR,No supported ATS board found via API probe,sectra
+Agfa HealthCare,EHR,No supported ATS board found via API probe,"agfa, agfahealthcare"
+Philips Healthcare Informatics,EHR,No supported ATS board found via API probe,"philips, philipshealthcare"
+Merge Healthcare,EHR,No supported ATS board found via API probe,"mergehealthcare, ibmmerge"
+Nuance,EHR,No supported ATS board found via API probe,nuance
+TigerConnect,EHR,No supported ATS board found via API probe,"tigerconnect, tigertext"
+Vocera,EHR,No supported ATS board found via API probe,"vocera, stryker"
+Epion Health,EHR,No supported ATS board found via API probe,"epion, epionhealth"
+Iodine Software,EHR,No supported ATS board found via API probe,"iodine, iodinesoftware"
+LogixHealth,EHR,No supported ATS board found via API probe,logixhealth
+MedEvolve,EHR,No supported ATS board found via API probe,medevolve
+Medgen EHR,EHR,No supported ATS board found via API probe,"medgen, medgenehr"
+ChartSpan,EHR,No supported ATS board found via API probe,chartspan
+Lightbeam Health,EHR,No supported ATS board found via API probe,"lightbeam, lightbeamhealth"
+Persivia,EHR,No supported ATS board found via API probe,persivia
+Health Catalyst,EHR,No supported ATS board found via API probe,healthcatalyst
+Philips,EHR,No Workday board found via API probe,philips/Philips
+Epic,EHR,No supported ATS board found; custom careers portal (careers.epic.com),"epic, epicsystems"
+Oracle Health,EHR,No supported ATS board found; likely Oracle/corporate careers portal,"cerner, oraclehealth, oracle"
+Altera Digital Health,EHR,No Workday board found via API probe,"altera, alteradigitalhealth"
+Greenway Health,EHR,Ambiguous slug match on workable/greenway,"greenway, greenwayhealth"
+Experity,EHR,No Workday board found via API probe,experity
+Benchmark Systems,EHR,No Workday board found via API probe,"benchmarksystems, benchmark"
+Praxis EMR,EHR,No Workday board found via API probe,"praxisemr, praxis"
+Compulink Healthcare Solutions,EHR,No Workday board found via API probe,compulink
+Enable Healthcare,EHR,No Workday board found via API probe,"enablehealthcare, enable"
+TherapyNotes,EHR,No Workday board found via API probe,therapynotes
+InterSystems TrakCare,EHR,No Workday board found via API probe,intersystems/InterSystems_Careers
+CGM (CompuGroup Medical),EHR,No Workday board found via API probe,cgm/CGM

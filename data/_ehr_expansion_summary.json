@@ -1,0 +1,15 @@
+{
+  "added": [],
+  "recategorized": [
+    "Notable Health"
+  ],
+  "ehr_total": 60,
+  "registry_total": 430,
+  "ats_distribution": {
+    "ashby": 11,
+    "greenhouse": 13,
+    "workable": 25,
+    "lever": 7,
+    "workday": 4
+  }
+}
