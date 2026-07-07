@@ -233,3 +233,105 @@ Ribbon Health,Revenue Cycle,Ambiguous slug match on workable/ribbon,"ribbon, rib
 athenahealth,Revenue Cycle,No supported ATS board found via API probe,"athenahealth, athena"
 eClinicalWorks,Revenue Cycle,No supported ATS board found via API probe,"eclinicalworks, ecw"
 Flywire Health,Revenue Cycle,Ambiguous slug match on workable/flywire (Flywire fintech vs healthcare payments),"flywire, flywirehealth"
+Evolent Health,Population Health,No supported ATS board found via API probe,"evolent, evolenthealth"
+Privia Health,Population Health,No supported ATS board found via API probe,"privia, priviahealth"
+Equality Health,Population Health,No supported ATS board found via API probe,"equalityhealth, equality"
+Somatus,Population Health,No supported ATS board found via API probe,somatus
+Emcara Health,Population Health,No supported ATS board found via API probe,"emcara, emcarahealth"
+HealthEC,Population Health,No supported ATS board found via API probe,"healthec, healthecinc"
+Innovista Health,Population Health,No supported ATS board found via API probe,"innovista, innovistahealth"
+Vytalize Health,Population Health,No supported ATS board found via API probe,"vytalize, vytalizehealth"
+Agilon Health,Population Health,No supported ATS board found via API probe,"agilon, agilonhealth"
+Oak Street Health,Population Health,No supported ATS board found via API probe,"oakstreethealth, oakstreet"
+Iora Health,Population Health,No supported ATS board found via API probe,"iorahealth, iora"
+Cano Health,Population Health,No supported ATS board found via API probe,"canohealth, cano"
+Devoted Health,Population Health,No supported ATS board found via API probe,"devoted, devotedhealth"
+Bright Health Group,Population Health,No supported ATS board found via API probe,"brighthealth, brighthealthgroup"
+Welldoc,Population Health,No supported ATS board found via API probe,welldoc
+Carrum Health,Population Health,No supported ATS board found via API probe,"carrumhealth, carrum"
+Season Health,Population Health,No supported ATS board found via API probe,"seasonhealth, season"
+CareBridge,Population Health,No supported ATS board found via API probe,carebridge
+CarePort,Population Health,No supported ATS board found via API probe,"careport, careporthealth"
+Persivia,Population Health,No supported ATS board found via API probe,persivia
+Enli Health Intelligence,Population Health,No supported ATS board found via API probe,"enli, enlihealth"
+Eccovia,Population Health,No supported ATS board found via API probe,eccovia
+Casenet Healthcare,Population Health,No supported ATS board found via API probe,"casenet, casenethealthcare"
+Ontada,Population Health,No supported ATS board found via API probe,ontada
+Navigating Cancer,Population Health,No supported ATS board found via API probe,navigatingcancer
+Socially Determined,Population Health,No supported ATS board found via API probe,sociallydetermined
+Audacious Inquiry,Population Health,No supported ATS board found via API probe,"audaciousinquiry, aihealth"
+Collective Medical,Population Health,No supported ATS board found via API probe,collectivemedical
+PatientPing,Population Health,No supported ATS board found via API probe,patientping
+Appriss Health,Population Health,No supported ATS board found via API probe,"appriss, apprisshealth"
+NextHealth,Population Health,No supported ATS board found via API probe,nexthealth
+Milliman,Population Health,No supported ATS board found via API probe,milliman
+CitiusTech,Population Health,No supported ATS board found via API probe,citiustech
+CynergisTek,Population Health,No supported ATS board found via API probe,cynergistek
+HealthPrize,Population Health,No supported ATS board found via API probe,healthprize
+Sparta Science,Population Health,No supported ATS board found via API probe,"sparta, spartascience"
+Pieces Technologies,Population Health,No supported ATS board found via API probe,"pieces, piecestech"
+Sonera Health,Population Health,No supported ATS board found via API probe,"sonera, sonerahealth"
+CirrusMD,Population Health,No supported ATS board found via API probe,cirrusmd
+SchoolCare,Population Health,No supported ATS board found via API probe,schoolcare
+Cedar Gate Technologies,Population Health,No supported ATS board found via API probe,cedargate
+Lightbeam Health Solutions,Population Health,No supported ATS board found via API probe,"lightbeam, lightbeamhealth"
+Bamboo Health,Population Health,No supported ATS board found via API probe,"bamboohealth, bamboo"
+Health Catalyst,Population Health,No supported ATS board found via API probe,healthcatalyst
+Datavant,Population Health,No supported ATS board found via API probe,datavant
+Ribbon Health,Population Health,No supported ATS board found via API probe,"ribbonhealth, ribbon"
+Turquoise Health,Population Health,No supported ATS board found via API probe,"turquoisehealth, turquoise"
+Fathom Health,Population Health,No supported ATS board found via API probe,"fathom, fathomhealth"
+Moxe Health,Population Health,No supported ATS board found via API probe,"moxehealth, moxe"
+Flexpa,Population Health,No supported ATS board found via API probe,flexpa
+Opmed,Population Health,No supported ATS board found via API probe,"opmed, opmedai"
+Iodine Software,Population Health,No supported ATS board found via API probe,"iodine, iodinesoftware"
+LogixHealth,Population Health,No supported ATS board found via API probe,logixhealth
+Clearstep,Population Health,No supported ATS board found via API probe,"clearstep, clearstephealth"
+Epion Health,Population Health,No supported ATS board found via API probe,"epion, epionhealth"
+Verisma,Population Health,No supported ATS board found via API probe,verisma
+MRO,Population Health,No supported ATS board found via API probe,"mro, mrocorp"
+Digitize.AI,Population Health,No supported ATS board found via API probe,"digitize, digitizeai"
+Nym,Population Health,No supported ATS board found via API probe,"nym, nymhealth"
+Thoughtful AI,Population Health,No supported ATS board found via API probe,"thoughtful, thoughtfulai"
+Collectly,Population Health,No supported ATS board found via API probe,collectly
+MedEvolve,Population Health,No supported ATS board found via API probe,medevolve
+MDaudit,Population Health,No supported ATS board found via API probe,"mdaudit, md-audit"
+Availity,Population Health,No supported ATS board found via API probe,availity
+XIFIN,Population Health,No supported ATS board found via API probe,xifin
+Quadax,Population Health,No supported ATS board found via API probe,quadax
+Alpha II,Population Health,No supported ATS board found via API probe,"alphaii, alpha2"
+MediStreams,Population Health,No supported ATS board found via API probe,medistreams
+RevSpring,Population Health,No supported ATS board found via API probe,revspring
+PatientCo,Population Health,No supported ATS board found via API probe,patientco
+VisitPay,Population Health,No supported ATS board found via API probe,visitpay
+Salucro,Population Health,No supported ATS board found via API probe,salucro
+AccessOne,Population Health,No supported ATS board found via API probe,"accessone, accessonehealth"
+Flywire,Population Health,No supported ATS board found via API probe,flywire
+Payspan,Population Health,No supported ATS board found via API probe,payspan
+ClearGage,Population Health,No supported ATS board found via API probe,cleargage
+PatientPay,Population Health,No supported ATS board found via API probe,patientpay
+CollaborateMD,Population Health,No supported ATS board found via API probe,collaboratemd
+Claim.MD,Population Health,No supported ATS board found via API probe,"claimmd, claim"
+pVerify,Population Health,No supported ATS board found via API probe,pverify
+Enter Health,Population Health,No supported ATS board found via API probe,enterhealth
+Edifecs,Population Health,No supported ATS board found via API probe,edifecs
+Craneware,Population Health,No supported ATS board found via API probe,craneware
+Syntellis,Population Health,No supported ATS board found via API probe,syntellis
+Conifer Health,Population Health,No supported ATS board found via API probe,"conifer, coniferhealth"
+Aquity Solutions,Population Health,No supported ATS board found via API probe,"aquity, aquitysolutions"
+iSalus,Population Health,No supported ATS board found via API probe,"isalus, salus"
+MediRevv,Population Health,No supported ATS board found via API probe,medirevv
+Trizetto,Population Health,No supported ATS board found via API probe,trizetto
+Cognizant Healthcare,Population Health,No supported ATS board found via API probe,cognizant
+FinThrive,Population Health,No supported ATS board found via API probe,"finthrive, nthrive"
+Experian Health,Population Health,No supported ATS board found via API probe,experianhealth
+Hinge Health,Population Health,No supported ATS board found via API probe,"hingehealth, hinge"
+Landmark Health,Population Health,No supported ATS board found via API probe,"landmarkhealth, landmark"
+Molina Healthcare,Population Health,No Workday board found via API probe,molina/MolinaHealthcare
+Guidehealth,Population Health,Ambiguous slug match on workable/guide (unverified company name),"guidehealth, guide"
+Thyme Care,Population Health,Ambiguous slug match on workable/thyme (unverified company name),"thymecare, thyme"
+DispatchHealth,Population Health,Ambiguous slug match on greenhouse/dispatch (unverified company name),"dispatch, dispatchhealth"
+Change Healthcare,Population Health,Ambiguous slug match on ashby/change (likely Change.org),"change, changehealthcare"
+Premise Health,Population Health,Ambiguous slug match on workable/premise (Premise Data Corporation),"premisehealth, premise"
+ChenMed,Population Health,Workable board found with 0 jobs; careers portal unverified,chenmed
+Alignment Healthcare,Population Health,Ambiguous slug match on workable/alignment,"alignmenthealthcare, alignment"

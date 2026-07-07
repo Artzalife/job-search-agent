@@ -1,0 +1,86 @@
+[
+  {
+    "company_id": "navvis",
+    "category": "Population Health",
+    "display_name": "Navvis",
+    "ats": "greenhouse",
+    "slug": "navvis",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 36
+  },
+  {
+    "company_id": "monogram-health",
+    "category": "Population Health",
+    "display_name": "Monogram Health",
+    "ats": "ashby",
+    "slug": "monogram",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 7
+  },
+  {
+    "company_id": "pearl-health",
+    "category": "Population Health",
+    "display_name": "Pearl Health",
+    "ats": "ashby",
+    "slug": "pearlhealth",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 9
+  },
+  {
+    "company_id": "quantum-health",
+    "category": "Population Health",
+    "display_name": "Quantum Health",
+    "ats": "ashby",
+    "slug": "quantum",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 7
+  },
+  {
+    "company_id": "zeomega",
+    "category": "Population Health",
+    "display_name": "ZeOmega",
+    "ats": "workable",
+    "slug": "zeomega",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 0
+  },
+  {
+    "company_id": "quartet-health",
+    "category": "Population Health",
+    "display_name": "Quartet Health",
+    "ats": "workable",
+    "slug": "quartethealth",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 0
+  },
+  {
+    "company_id": "icario",
+    "category": "Population Health",
+    "display_name": "Icario",
+    "ats": "workable",
+    "slug": "icario",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 0
+  }
+]
