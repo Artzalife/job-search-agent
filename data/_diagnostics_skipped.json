@@ -1,0 +1,367 @@
+[
+  {
+    "display_name": "Biodesix",
+    "slug_candidates": "biodesix",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Paige",
+    "slug_candidates": "paige, paigeai",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Proscia",
+    "slug_candidates": "proscia",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Quibim",
+    "slug_candidates": "quibim",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Viz.ai",
+    "slug_candidates": "vizai, viz",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Arterys",
+    "slug_candidates": "arterys",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Karius",
+    "slug_candidates": "karius",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Genomenon",
+    "slug_candidates": "genomenon",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Lucence",
+    "slug_candidates": "lucence, lucencehealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Fulgent Genetics",
+    "slug_candidates": "fulgent, fulgentgenetics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Sema4",
+    "slug_candidates": "sema4",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Caris Life Sciences",
+    "slug_candidates": "caris, carislifesciences",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "PacBio",
+    "slug_candidates": "pacbio, pacificbiosciences",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Oxford Nanopore",
+    "slug_candidates": "nanopore, oxfordnanopore",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Standard BioTools",
+    "slug_candidates": "standardbio, fluidigm",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Mission Bio",
+    "slug_candidates": "missionbio",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Burning Rock DX",
+    "slug_candidates": "burningrock, brbiotech",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Predicine",
+    "slug_candidates": "predicine",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Resolution Bioscience",
+    "slug_candidates": "resolutionbio, resolutionbioscience",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "C2i Genomics",
+    "slug_candidates": "c2i, c2igenomics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Inivata",
+    "slug_candidates": "inivata",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Gestalt Diagnostics",
+    "slug_candidates": "gestalt, gestaltdiagnostics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Digital Diagnostics",
+    "slug_candidates": "digitaldiagnostics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Inspirata",
+    "slug_candidates": "inspirata",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Deep Bio",
+    "slug_candidates": "deepbio",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "OptraSCAN",
+    "slug_candidates": "optrascan",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Visiopharm",
+    "slug_candidates": "visiopharm",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Qure.ai",
+    "slug_candidates": "qureai, qure",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Zebra Medical Vision",
+    "slug_candidates": "zebra-med, zebramed",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Riverain Technologies",
+    "slug_candidates": "riverain, riveraintech",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "CureMetrix",
+    "slug_candidates": "curemetrix",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "ScreenPoint Medical",
+    "slug_candidates": "screenpoint, screenpointmedical",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Intelerad",
+    "slug_candidates": "intelerad",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Nanox",
+    "slug_candidates": "nanox, nanoximaging",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Subtle Medical",
+    "slug_candidates": "subtlemedical, subtle",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Imagen Technologies",
+    "slug_candidates": "imagen, imagtechnologies",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Oxipit",
+    "slug_candidates": "oxipit",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Avicenna.AI",
+    "slug_candidates": "avicenna, avicennaai",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Aidence",
+    "slug_candidates": "aidence",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Kheiron Medical",
+    "slug_candidates": "kheiron, kheironmedical",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "DeepHealth",
+    "slug_candidates": "deephealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Elucid Bioimaging",
+    "slug_candidates": "elucid, elucidbioimaging",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Caption Health",
+    "slug_candidates": "captionhealth, caption",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Us2.ai",
+    "slug_candidates": "us2ai, us2",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "HeartSciences",
+    "slug_candidates": "heartsciences",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "T2 Biosystems",
+    "slug_candidates": "t2biosystems, t2",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Day Zero Diagnostics",
+    "slug_candidates": "dayzerodiagnostics, dayzero",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Sight Diagnostics",
+    "slug_candidates": "sightdx, sightdiagnostics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Cue Health",
+    "slug_candidates": "cuehealth, cue",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Specific Diagnostics",
+    "slug_candidates": "specificdx, specificdiagnostics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "NxGen MDx",
+    "slug_candidates": "nxgen, nxgenmdx",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Kindbody",
+    "slug_candidates": "kindbody",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Ovia Health",
+    "slug_candidates": "ovia, oviahealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Function Health",
+    "slug_candidates": "functionhealth, function",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "InsideTracker",
+    "slug_candidates": "insidetracker",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Thorne",
+    "slug_candidates": "thorne, thornhealth",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "BioReference Laboratories",
+    "slug_candidates": "bioreference, bioref",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Labcorp",
+    "slug_candidates": "labcorp",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Quest Diagnostics",
+    "slug_candidates": "questdiagnostics, quest",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Psomagen",
+    "slug_candidates": "psomagen",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "PreventionGenetics",
+    "slug_candidates": "preventiongenetics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Ambry Genetics",
+    "slug_candidates": "ambry, ambrygenetics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "FDNA",
+    "slug_candidates": "fdna",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "N-of-One",
+    "slug_candidates": "nofone, n-of-one",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Huma",
+    "slug_candidates": "huma, humatherapeutics",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Thermo Fisher Scientific",
+    "slug_candidates": "thermofisher, thermo",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Eurofins",
+    "slug_candidates": "eurofins",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Sunquest Information Systems",
+    "slug_candidates": "sunquest",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "XIFIN",
+    "slug_candidates": "xifin",
+    "reason": "No supported ATS board found via API probe"
+  },
+  {
+    "display_name": "Illumina",
+    "slug_candidates": "illumina/Illumina",
+    "reason": "No Workday board found via API probe"
+  },
+  {
+    "display_name": "Hologic",
+    "slug_candidates": "hologic/Hologic",
+    "reason": "No Workday board found via API probe"
+  },
+  {
+    "display_name": "BD",
+    "slug_candidates": "bd/BD",
+    "reason": "No Workday board found via API probe"
+  },
+  {
+    "display_name": "Agilent",
+    "slug_candidates": "agilent/Agilent",
+    "reason": "No Workday board found via API probe"
+  }
+]

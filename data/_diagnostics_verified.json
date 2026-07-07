@@ -1,0 +1,86 @@
+[
+  {
+    "company_id": "prenuvo",
+    "category": "Diagnostics",
+    "display_name": "Prenuvo",
+    "ats": "greenhouse",
+    "slug": "prenuvo",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 36
+  },
+  {
+    "company_id": "fabric-genomics",
+    "category": "Diagnostics",
+    "display_name": "Fabric Genomics",
+    "ats": "greenhouse",
+    "slug": "fabricgenomics",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 0
+  },
+  {
+    "company_id": "akoya-biosciences",
+    "category": "Diagnostics",
+    "display_name": "Akoya Biosciences",
+    "ats": "greenhouse",
+    "slug": "akoya",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 3
+  },
+  {
+    "company_id": "singular-genomics",
+    "category": "Diagnostics",
+    "display_name": "Singular Genomics",
+    "ats": "ashby",
+    "slug": "singular",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 18
+  },
+  {
+    "company_id": "foresight-diagnostics",
+    "category": "Diagnostics",
+    "display_name": "Foresight Diagnostics",
+    "ats": "ashby",
+    "slug": "foresight",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 2
+  },
+  {
+    "company_id": "retinai-medical",
+    "category": "Diagnostics",
+    "display_name": "RetinAI Medical",
+    "ats": "workable",
+    "slug": "retinai",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 20
+  },
+  {
+    "company_id": "visby-medical",
+    "category": "Diagnostics",
+    "display_name": "Visby Medical",
+    "ats": "lever",
+    "slug": "visby",
+    "enabled": "yes",
+    "notes": "",
+    "wd_server": "",
+    "workday_site": "",
+    "job_count": 1
+  }
+]

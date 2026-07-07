@@ -335,3 +335,80 @@ Change Healthcare,Population Health,Ambiguous slug match on ashby/change (likely
 Premise Health,Population Health,Ambiguous slug match on workable/premise (Premise Data Corporation),"premisehealth, premise"
 ChenMed,Population Health,Workable board found with 0 jobs; careers portal unverified,chenmed
 Alignment Healthcare,Population Health,Ambiguous slug match on workable/alignment,"alignmenthealthcare, alignment"
+Biodesix,Diagnostics,No supported ATS board found via API probe,biodesix
+Paige,Diagnostics,No supported ATS board found via API probe,"paige, paigeai"
+Proscia,Diagnostics,No supported ATS board found via API probe,proscia
+Quibim,Diagnostics,No supported ATS board found via API probe,quibim
+Viz.ai,Diagnostics,No supported ATS board found via API probe,"vizai, viz"
+Arterys,Diagnostics,No supported ATS board found via API probe,arterys
+Karius,Diagnostics,No supported ATS board found via API probe,karius
+Genomenon,Diagnostics,No supported ATS board found via API probe,genomenon
+Lucence,Diagnostics,No supported ATS board found via API probe,"lucence, lucencehealth"
+Fulgent Genetics,Diagnostics,No supported ATS board found via API probe,"fulgent, fulgentgenetics"
+Sema4,Diagnostics,No supported ATS board found via API probe,sema4
+Caris Life Sciences,Diagnostics,No supported ATS board found via API probe,"caris, carislifesciences"
+PacBio,Diagnostics,No supported ATS board found via API probe,"pacbio, pacificbiosciences"
+Oxford Nanopore,Diagnostics,No supported ATS board found via API probe,"nanopore, oxfordnanopore"
+Standard BioTools,Diagnostics,No supported ATS board found via API probe,"standardbio, fluidigm"
+Mission Bio,Diagnostics,No supported ATS board found via API probe,missionbio
+Burning Rock DX,Diagnostics,No supported ATS board found via API probe,"burningrock, brbiotech"
+Predicine,Diagnostics,No supported ATS board found via API probe,predicine
+Resolution Bioscience,Diagnostics,No supported ATS board found via API probe,"resolutionbio, resolutionbioscience"
+C2i Genomics,Diagnostics,No supported ATS board found via API probe,"c2i, c2igenomics"
+Inivata,Diagnostics,No supported ATS board found via API probe,inivata
+Gestalt Diagnostics,Diagnostics,No supported ATS board found via API probe,"gestalt, gestaltdiagnostics"
+Digital Diagnostics,Diagnostics,No supported ATS board found via API probe,digitaldiagnostics
+Inspirata,Diagnostics,No supported ATS board found via API probe,inspirata
+Deep Bio,Diagnostics,No supported ATS board found via API probe,deepbio
+OptraSCAN,Diagnostics,No supported ATS board found via API probe,optrascan
+Visiopharm,Diagnostics,No supported ATS board found via API probe,visiopharm
+Qure.ai,Diagnostics,No supported ATS board found via API probe,"qureai, qure"
+Zebra Medical Vision,Diagnostics,No supported ATS board found via API probe,"zebra-med, zebramed"
+Riverain Technologies,Diagnostics,No supported ATS board found via API probe,"riverain, riveraintech"
+CureMetrix,Diagnostics,No supported ATS board found via API probe,curemetrix
+ScreenPoint Medical,Diagnostics,No supported ATS board found via API probe,"screenpoint, screenpointmedical"
+Intelerad,Diagnostics,No supported ATS board found via API probe,intelerad
+Nanox,Diagnostics,No supported ATS board found via API probe,"nanox, nanoximaging"
+Subtle Medical,Diagnostics,No supported ATS board found via API probe,"subtlemedical, subtle"
+Imagen Technologies,Diagnostics,No supported ATS board found via API probe,"imagen, imagtechnologies"
+Oxipit,Diagnostics,No supported ATS board found via API probe,oxipit
+Avicenna.AI,Diagnostics,No supported ATS board found via API probe,"avicenna, avicennaai"
+Aidence,Diagnostics,No supported ATS board found via API probe,aidence
+Kheiron Medical,Diagnostics,No supported ATS board found via API probe,"kheiron, kheironmedical"
+DeepHealth,Diagnostics,No supported ATS board found via API probe,deephealth
+Elucid Bioimaging,Diagnostics,No supported ATS board found via API probe,"elucid, elucidbioimaging"
+Caption Health,Diagnostics,No supported ATS board found via API probe,"captionhealth, caption"
+Us2.ai,Diagnostics,No supported ATS board found via API probe,"us2ai, us2"
+HeartSciences,Diagnostics,No supported ATS board found via API probe,heartsciences
+T2 Biosystems,Diagnostics,No supported ATS board found via API probe,"t2biosystems, t2"
+Day Zero Diagnostics,Diagnostics,No supported ATS board found via API probe,"dayzerodiagnostics, dayzero"
+Sight Diagnostics,Diagnostics,No supported ATS board found via API probe,"sightdx, sightdiagnostics"
+Cue Health,Diagnostics,No supported ATS board found via API probe,"cuehealth, cue"
+Specific Diagnostics,Diagnostics,No supported ATS board found via API probe,"specificdx, specificdiagnostics"
+NxGen MDx,Diagnostics,No supported ATS board found via API probe,"nxgen, nxgenmdx"
+Kindbody,Diagnostics,No supported ATS board found via API probe,kindbody
+Ovia Health,Diagnostics,No supported ATS board found via API probe,"ovia, oviahealth"
+Function Health,Diagnostics,No supported ATS board found via API probe,"functionhealth, function"
+InsideTracker,Diagnostics,No supported ATS board found via API probe,insidetracker
+Thorne,Diagnostics,No supported ATS board found via API probe,"thorne, thornhealth"
+BioReference Laboratories,Diagnostics,No supported ATS board found via API probe,"bioreference, bioref"
+Labcorp,Diagnostics,No supported ATS board found via API probe,labcorp
+Quest Diagnostics,Diagnostics,No supported ATS board found via API probe,"questdiagnostics, quest"
+Psomagen,Diagnostics,No supported ATS board found via API probe,psomagen
+PreventionGenetics,Diagnostics,No supported ATS board found via API probe,preventiongenetics
+Ambry Genetics,Diagnostics,No supported ATS board found via API probe,"ambry, ambrygenetics"
+FDNA,Diagnostics,No supported ATS board found via API probe,fdna
+N-of-One,Diagnostics,No supported ATS board found via API probe,"nofone, n-of-one"
+Huma,Diagnostics,No supported ATS board found via API probe,"huma, humatherapeutics"
+Thermo Fisher Scientific,Diagnostics,No supported ATS board found via API probe,"thermofisher, thermo"
+Eurofins,Diagnostics,No supported ATS board found via API probe,eurofins
+Sunquest Information Systems,Diagnostics,No supported ATS board found via API probe,sunquest
+XIFIN,Diagnostics,No supported ATS board found via API probe,xifin
+Illumina,Diagnostics,No Workday board found via API probe,illumina/Illumina
+Hologic,Diagnostics,No Workday board found via API probe,hologic/Hologic
+BD,Diagnostics,No Workday board found via API probe,bd/BD
+Agilent,Diagnostics,No Workday board found via API probe,agilent/Agilent
+Foundation Medicine,Diagnostics,Ambiguous slug match on ashby/foundation (not Foundation Medicine),"foundationmedicine, foundation"
+Ezra,Diagnostics,Ambiguous slug match on greenhouse/ezra (not Ezra screening),"ezra, ezrahealth"
+Sonic Healthcare,Diagnostics,Ambiguous slug match on greenhouse/sonic,"sonic, sonichealthcare"
+Myriad Genetics,Diagnostics,No supported ATS board found via API probe,"myriad, myriadgenetics"
