@@ -497,3 +497,6 @@ Enable Healthcare,EHR,No Workday board found via API probe,"enablehealthcare, en
 TherapyNotes,EHR,No Workday board found via API probe,therapynotes
 InterSystems TrakCare,EHR,No Workday board found via API probe,intersystems/InterSystems_Careers
 CGM (CompuGroup Medical),EHR,No Workday board found via API probe,cgm/CGM
+Particle Health,Population Health,Greenhouse board API 404; careers page still embeds particlehealth,particlehealth
+Transcarent,Population Health,Greenhouse board API 404; empty Lever board,transcarent
+AccuraGen,General Tech,Workable public API 404; apply page shell only,accuragen
