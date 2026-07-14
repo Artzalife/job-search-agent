@@ -80,6 +80,8 @@ CSV_COLUMNS = [
     "Description File",
 ]
 
+MISSING_DESCRIPTION_PLACEHOLDER = "_No description available._"
+
 _LEGACY_CSV_ALIASES = {
     "company": "Company",
     "title": "Title",
@@ -732,7 +734,7 @@ def description_markdown(
     description: str,
 ) -> str:
     """Render the archived job description as Markdown."""
-    body = description.strip() if description.strip() else "_No description available._"
+    body = description.strip() if description.strip() else MISSING_DESCRIPTION_PLACEHOLDER
     return (
         f"# {title}\n\n"
         f"Company: {company}\n"
@@ -1588,6 +1590,48 @@ def print_summary(stats: dict[str, int], written_to_csv: int) -> None:
     print(f"Jobs Written To CSV:       {written_to_csv}")
 
 
+def description_file_is_missing(relative_path: str) -> bool:
+    """Return True when a description archive is absent or only a stub."""
+    path_text = relative_path.strip()
+    if not path_text:
+        return True
+
+    absolute_path = Path(path_text)
+    if not absolute_path.is_file():
+        return True
+
+    try:
+        content = absolute_path.read_text(encoding="utf-8")
+    except OSError:
+        return True
+
+    return MISSING_DESCRIPTION_PLACEHOLDER in content
+
+
+def find_jobs_missing_descriptions(csv_path: Path) -> list[dict]:
+    """Return CSV rows whose archived description still needs a manual paste."""
+    missing: list[dict] = []
+    for row in load_existing_jobs(csv_path).values():
+        if description_file_is_missing(row.get("Description File", "")):
+            missing.append(row)
+    missing.sort(key=_csv_sort_key, reverse=True)
+    return missing
+
+
+def print_missing_descriptions_report(missing: list[dict]) -> None:
+    """Print jobs that need a manual description paste."""
+    print(f"\nMissing descriptions (need manual paste): {len(missing)}")
+    for row in missing:
+        company = row.get("Company", "").strip() or "(unknown company)"
+        title = row.get("Title", "").strip() or "(unknown title)"
+        apply_url = row.get("Apply URL", "").strip()
+        description_file = row.get("Description File", "").strip() or "(no description file)"
+        print(f"  - {company} — {title}")
+        if apply_url:
+            print(f"    {apply_url}")
+        print(f"    -> {description_file}")
+
+
 def main() -> None:
     print(
         "Collecting Product Design jobs from Greenhouse, Lever, Ashby, "
@@ -1603,6 +1647,7 @@ def main() -> None:
         )
         print_summary(stats, 0)
         print(f"\nKept {existing_count} existing row(s) in {csv_path.resolve()}")
+        print_missing_descriptions_report(find_jobs_missing_descriptions(csv_path))
         return
 
     added, total_written, archived, removed = save_jobs(csv_path, jobs, live_apply_urls)
@@ -1620,6 +1665,7 @@ def main() -> None:
             f"total rows in CSV: {total_written}"
         )
     print(f"Archived {archived} new job description(s) to {Path(DESCRIPTIONS_DIR).resolve()}")
+    print_missing_descriptions_report(find_jobs_missing_descriptions(csv_path))
 
 
 if __name__ == "__main__":
