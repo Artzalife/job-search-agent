@@ -37,6 +37,11 @@ VALID_CATEGORIES = frozenset({
     "Behavioral Health",
     "Employer Health",
     "General Tech",
+    "Fintech",
+    "HR Tech",
+    "Cybersecurity",
+    "Payer Operations",
+    "Pharmacy",
 })
 
 

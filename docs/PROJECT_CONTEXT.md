@@ -58,7 +58,7 @@ Each row is one scrapeable ATS board. Required columns: `company_id`, `category`
 
 `config.py` loads enabled rows into in-memory board dicts consumed by the scraper. Adding a company means adding a CSV row — not editing Python board lists.
 
-**Allowed categories:** Clinical AI, EHR, Provider Operations, Population Health, Healthcare Infrastructure, Revenue Cycle, Medical Devices, Diagnostics, Clinical Research, Healthcare Analytics, Healthcare CRM, Veterinary, Behavioral Health, Employer Health, General Tech.
+**Allowed categories:** Clinical AI, EHR, Provider Operations, Population Health, Healthcare Infrastructure, Revenue Cycle, Medical Devices, Diagnostics, Clinical Research, Healthcare Analytics, Healthcare CRM, Veterinary, Behavioral Health, Employer Health, General Tech, Fintech, HR Tech, Cybersecurity, Payer Operations, Pharmacy.
 
 ### Validation
 
